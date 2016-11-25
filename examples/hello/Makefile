@@ -9,5 +9,5 @@ clean:
 
 all: hello.so
 
-test:
+test: hello.so
 	$(EMACS) -batch -load hello.so

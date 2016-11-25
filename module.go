@@ -21,6 +21,7 @@ package goemacs
 #include "include/wrapper.h"
 */
 import "C"
+import "sync"
 
 var initFuncs = make([]func(*Environment), 0)
 
@@ -112,13 +113,42 @@ func (stdlib *StdLib) Fset(sym Symbol, f Function) {
 
 type FunctionType func(*Environment, int, []Value, interface{})
 
+// from http://stackoverflow.com/questions/37157379/passing-function-pointer-to-the-c-code-using-cgo
+var mu sync.Mutex
+var index int
+var fns = make(map[int]FunctionType)
+
+func register(fn FunctionType) int {
+	mu.Lock()
+	defer mu.Unlock()
+	index++
+	for fns[index] != nil {
+		index++
+	}
+	fns[index] = fn
+	return index
+}
+
+func lookup(i int) FunctionType {
+	mu.Lock()
+	defer mu.Unlock()
+	return fns[i]
+}
+
+func unregister(i int) {
+	mu.Lock()
+	defer mu.Unlock()
+	delete(fns, i)
+}
+
 func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Function {
 	cArity := C.int(arity)
+	idx := register(f)
+
 	return Function{
 		Value{
-			// FIXME: need to pass ID
 			C.MakeFunction(e.env, cArity, cArity,
-				C.CString(doc), nil),
+				C.CString(doc), C.ptrdiff_t(idx)),
 		},
 	}
 }

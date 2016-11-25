@@ -57,6 +57,7 @@ func (e *Environment) StdLib() *StdLib {
 		e.stdlib = &StdLib{
 			env:         e,
 			messageFunc: C.Intern(e.env, C.CString("message")),
+			fsetFunc:    C.Intern(e.env, C.CString("fset")),
 		}
 	}
 	return e.stdlib

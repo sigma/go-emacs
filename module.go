@@ -85,7 +85,7 @@ type Function struct {
 	Value
 }
 
-func (v Value) ToString() string {
+func (e *Environment) GoString(v Value) string {
 	// FIXME: actually compute string...
 	return ""
 }

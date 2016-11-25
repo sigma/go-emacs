@@ -37,13 +37,17 @@ func initModule(env *goemacs.Environment) {
 	stdlib.Fset(stdlib.Intern("hello"), env.MakeFunction(Hello, 1, "hello"))
 }
 
-func Hello(env *goemacs.Environment, nargs int, args []goemacs.Value, _ interface{}) {
+func Hello(env *goemacs.Environment, nargs int,
+	args []goemacs.Value, _ interface{}) goemacs.Value {
+	stdlib := env.StdLib()
 	if nargs != 1 {
 		// TODO: display error message
-		return
+		return stdlib.Nil
 	}
 	s := args[0].ToString()
-	env.StdLib().Message(fmt.Sprintf("Hello %s!", s))
+	stdlib.Message(fmt.Sprintf("Hello %s!", s))
+
+	return stdlib.Nil
 }
 
 func main() {}

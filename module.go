@@ -21,7 +21,10 @@ package goemacs
 #include "include/wrapper.h"
 */
 import "C"
-import "sync"
+import (
+	"sync"
+	"unsafe"
+)
 
 var initFuncs = make([]func(*Environment), 0)
 
@@ -51,6 +54,7 @@ type StdLib struct {
 	env         *Environment
 	messageFunc C.emacs_value
 	fsetFunc    C.emacs_value
+	Nil         Value
 }
 
 func (e *Environment) StdLib() *StdLib {
@@ -59,6 +63,7 @@ func (e *Environment) StdLib() *StdLib {
 			env:         e,
 			messageFunc: C.Intern(e.env, C.CString("message")),
 			fsetFunc:    C.Intern(e.env, C.CString("fset")),
+			Nil:         Value{C.Intern(e.env, C.CString("nil"))},
 		}
 	}
 	return e.stdlib
@@ -111,14 +116,21 @@ func (stdlib *StdLib) Fset(sym Symbol, f Function) {
 	C.Funcall(stdlib.env.env, stdlib.fsetFunc, 2, &args[0])
 }
 
-type FunctionType func(*Environment, int, []Value, interface{})
+type FunctionType func(*Environment, int, []Value, interface{}) Value
+
+type FunctionEntry struct {
+	f     FunctionType
+	arity int
+	doc   string
+	data  interface{}
+}
 
 // from http://stackoverflow.com/questions/37157379/passing-function-pointer-to-the-c-code-using-cgo
 var mu sync.Mutex
 var index int
-var fns = make(map[int]FunctionType)
+var fns = make(map[int]*FunctionEntry)
 
-func register(fn FunctionType) int {
+func register(fn *FunctionEntry) int {
 	mu.Lock()
 	defer mu.Unlock()
 	index++
@@ -129,7 +141,7 @@ func register(fn FunctionType) int {
 	return index
 }
 
-func lookup(i int) FunctionType {
+func lookup(i int) *FunctionEntry {
 	mu.Lock()
 	defer mu.Unlock()
 	return fns[i]
@@ -143,7 +155,11 @@ func unregister(i int) {
 
 func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Function {
 	cArity := C.int(arity)
-	idx := register(f)
+	idx := register(&FunctionEntry{
+		f:     f,
+		arity: arity,
+		doc:   doc,
+	})
 
 	return Function{
 		Value{
@@ -151,4 +167,29 @@ func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Functi
 				C.CString(doc), C.ptrdiff_t(idx)),
 		},
 	}
+}
+
+//export emacs_call_function
+func emacs_call_function(
+	//FIXME: emacs_env_25 shouldn't be used
+	env *C.struct_emacs_env_25, nargs C.ptrdiff_t,
+	args *C.emacs_value, idx C.ptrdiff_t) C.emacs_value {
+
+	n := int(nargs)
+	pargs := (*[1 << 30]C.emacs_value)(unsafe.Pointer(args))
+	arguments := make([]Value, n)
+	for i := 0; i < n; i++ {
+		arguments[i] = Value{
+			val: pargs[i],
+		}
+	}
+	entry := lookup(int(idx))
+	return entry.f(
+		&Environment{
+			env: env,
+		},
+		n,
+		arguments,
+		entry.data,
+	).val
 }

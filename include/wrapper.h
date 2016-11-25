@@ -39,6 +39,9 @@ static inline emacs_value MakeString(emacs_env *env, const char* contents, int l
 extern emacs_value emacs_function_wrapper(emacs_env* env, ptrdiff_t nargs,
                                           emacs_value args[], void* data);
 
+extern emacs_value emacs_call_function (emacs_env* env, ptrdiff_t nargs,
+                                        emacs_value *args, ptrdiff_t idx);
+
 static inline emacs_value MakeFunction(emacs_env *env, int min_arity, int max_arity,
                                        const char* documentation, ptrdiff_t idx) {
   return env->make_function(env, min_arity, max_arity,

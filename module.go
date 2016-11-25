@@ -112,6 +112,13 @@ func (stdlib *StdLib) Fset(sym Symbol, f Function) {
 
 type FunctionType func(*Environment, int, []Value, interface{})
 
-func (e *Environment) MakeFunction(f FunctionType) Function {
-	return Function{}
+func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Function {
+	cArity := C.int(arity)
+	return Function{
+		Value{
+			// FIXME: need to pass ID
+			C.MakeFunction(e.env, cArity, cArity,
+				C.CString(doc), nil),
+		},
+	}
 }

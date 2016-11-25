@@ -34,7 +34,7 @@ func initModule(env *goemacs.Environment) {
 	stdlib := env.StdLib()
 	stdlib.Message("hello from go")
 
-	stdlib.Fset(stdlib.Intern("hello"), env.MakeFunction(Hello))
+	stdlib.Fset(stdlib.Intern("hello"), env.MakeFunction(Hello, 1, "hello"))
 }
 
 func Hello(env *goemacs.Environment, nargs int, args []goemacs.Value, _ interface{}) {

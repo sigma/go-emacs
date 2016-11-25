@@ -26,7 +26,8 @@ var initFuncs = make([]func(*Environment), 0)
 
 type Environment struct {
 	// FIXME: for some reason, struct_emacs_env doesn't compile
-	env *C.struct_emacs_env_25
+	env    *C.struct_emacs_env_25
+	stdlib *StdLib
 }
 
 func Register(f func(*Environment)) {
@@ -51,10 +52,13 @@ type StdLib struct {
 }
 
 func (e *Environment) StdLib() *StdLib {
-	return &StdLib{
-		env:         e,
-		messageFunc: C.Intern(e.env, C.CString("message")),
+	if e.stdlib == nil {
+		e.stdlib = &StdLib{
+			env:         e,
+			messageFunc: C.Intern(e.env, C.CString("message")),
+		}
 	}
+	return e.stdlib
 }
 
 func (stdlib *StdLib) Message(s string) {

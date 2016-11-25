@@ -49,6 +49,7 @@ func emacs_module_init(e *C.struct_emacs_runtime) C.int {
 type StdLib struct {
 	env         *Environment
 	messageFunc C.emacs_value
+	fsetFunc    C.emacs_value
 }
 
 func (e *Environment) StdLib() *StdLib {
@@ -61,7 +62,55 @@ func (e *Environment) StdLib() *StdLib {
 	return e.stdlib
 }
 
+type Value struct {
+	val C.emacs_value
+}
+
+type Symbol struct {
+	Value
+}
+
+type String struct {
+	Value
+}
+
+type Function struct {
+	Value
+}
+
+func (v Value) ToString() string {
+	// FIXME: actually compute string...
+	return ""
+}
+
+func (e *Environment) String(s string) String {
+	return String{
+		Value{
+			C.MakeString(e.env, C.CString(s), C.int(len(s))),
+		},
+	}
+}
+
 func (stdlib *StdLib) Message(s string) {
-	str := C.MakeString(stdlib.env.env, C.CString(s), C.int(len(s)))
-	C.Funcall(stdlib.env.env, stdlib.messageFunc, 1, &str)
+	str := stdlib.env.String(s)
+	C.Funcall(stdlib.env.env, stdlib.messageFunc, 1, &str.val)
+}
+
+func (stdlib *StdLib) Intern(s string) Symbol {
+	return Symbol{
+		Value{
+			C.Intern(stdlib.env.env, C.CString(s)),
+		},
+	}
+}
+
+func (stdlib *StdLib) Fset(sym Symbol, f Function) {
+	args := [2]C.emacs_value{sym.val, f.val}
+	C.Funcall(stdlib.env.env, stdlib.fsetFunc, 2, &args[0])
+}
+
+type FunctionType func(*Environment, int, []Value, interface{})
+
+func (e *Environment) MakeFunction(f FunctionType) Function {
+	return Function{}
 }

@@ -20,7 +20,11 @@ package main
 // int plugin_is_GPL_compatible;
 import "C"
 
-import "github.com/sigma/goemacs"
+import (
+	"fmt"
+
+	"github.com/sigma/goemacs"
+)
 
 func init() {
 	goemacs.Register(initModule)
@@ -29,6 +33,17 @@ func init() {
 func initModule(env *goemacs.Environment) {
 	stdlib := env.StdLib()
 	stdlib.Message("hello from go")
+
+	stdlib.Fset(stdlib.Intern("hello"), env.MakeFunction(Hello))
+}
+
+func Hello(env *goemacs.Environment, nargs int, args []goemacs.Value, _ interface{}) {
+	if nargs != 1 {
+		// TODO: display error message
+		return
+	}
+	s := args[0].ToString()
+	env.StdLib().Message(fmt.Sprintf("Hello %s!", s))
 }
 
 func main() {}

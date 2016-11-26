@@ -40,10 +40,8 @@ func initModule(env *goemacs.Environment) {
 func Hello(env *goemacs.Environment, nargs int,
 	args []goemacs.Value, _ interface{}) goemacs.Value {
 	stdlib := env.StdLib()
-	if nargs != 1 {
-		// TODO: display error message
-		return stdlib.Nil
-	}
+
+	// we're guaranteed to be called with 1 argument
 	s, err := env.GoString(args[0])
 	if err != nil {
 		return stdlib.Nil

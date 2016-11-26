@@ -59,11 +59,20 @@ type StdLib struct {
 
 func (e *Environment) StdLib() *StdLib {
 	if e.stdlib == nil {
+		messageStr := C.CString("message")
+		defer C.free(unsafe.Pointer(messageStr))
+
+		fsetStr := C.CString("fset")
+		defer C.free(unsafe.Pointer(fsetStr))
+
+		nilStr := C.CString("nil")
+		defer C.free(unsafe.Pointer(nilStr))
+
 		e.stdlib = &StdLib{
 			env:         e,
-			messageFunc: C.Intern(e.env, C.CString("message")),
-			fsetFunc:    C.Intern(e.env, C.CString("fset")),
-			Nil:         Value{C.Intern(e.env, C.CString("nil"))},
+			messageFunc: C.Intern(e.env, messageStr),
+			fsetFunc:    C.Intern(e.env, fsetStr),
+			Nil:         Value{C.Intern(e.env, nilStr)},
 		}
 	}
 	return e.stdlib
@@ -86,14 +95,20 @@ type Function struct {
 }
 
 func (e *Environment) GoString(v Value) string {
-	// FIXME: actually compute string...
-	return ""
+	size := C.StringSize(e.env, v.val)
+	buffer := C.CopyString(e.env, v.val, size)
+	s := C.GoStringN(buffer, C.int(size))
+	C.free(unsafe.Pointer(buffer))
+	return s
 }
 
 func (e *Environment) String(s string) String {
+	valStr := C.CString(s)
+	defer C.free(unsafe.Pointer(valStr))
+
 	return String{
 		Value{
-			C.MakeString(e.env, C.CString(s), C.int(len(s))),
+			C.MakeString(e.env, valStr, C.int(len(s))),
 		},
 	}
 }
@@ -104,9 +119,12 @@ func (stdlib *StdLib) Message(s string) {
 }
 
 func (stdlib *StdLib) Intern(s string) Symbol {
+	valStr := C.CString(s)
+	defer C.free(unsafe.Pointer(valStr))
+
 	return Symbol{
 		Value{
-			C.Intern(stdlib.env.env, C.CString(s)),
+			C.Intern(stdlib.env.env, valStr),
 		},
 	}
 }
@@ -161,10 +179,13 @@ func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Functi
 		doc:   doc,
 	})
 
+	docStr := C.CString(doc)
+	defer C.free(unsafe.Pointer(docStr))
+
 	return Function{
 		Value{
 			C.MakeFunction(e.env, cArity, cArity,
-				C.CString(doc), C.ptrdiff_t(idx)),
+				docStr, C.ptrdiff_t(idx)),
 		},
 	}
 }

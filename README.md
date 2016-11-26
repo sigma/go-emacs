@@ -9,6 +9,7 @@ Requires dynamic modules support to be built into Emacs (obviously): check that
 ```
 $ cd examples/hello
 $ make test
-emacs -batch -load hello.so
-hello from go
+/usr/local/bin/emacs --batch --load hello.so --eval '(hello "world")'
+hello from go init
+Hello world!
 ```

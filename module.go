@@ -22,6 +22,7 @@ package goemacs
 */
 import "C"
 import (
+	"errors"
 	"sync"
 	"unsafe"
 )
@@ -94,12 +95,32 @@ type Function struct {
 	Value
 }
 
-func (e *Environment) GoString(v Value) string {
+func (e *Environment) NonLocalExitCheck() error {
+	code := C.NonLocalExitCheck(e.env)
+	if code == C.emacs_funcall_exit_return {
+		return nil
+	}
+	switch code {
+	case C.emacs_funcall_exit_signal:
+		return errors.New("signal")
+	case C.emacs_funcall_exit_throw:
+		return errors.New("throw")
+	default:
+		return nil
+	}
+}
+
+func (e *Environment) GoString(v Value) (string, error) {
 	size := C.StringSize(e.env, v.val)
 	buffer := C.CopyString(e.env, v.val, size)
+	defer C.free(unsafe.Pointer(buffer))
+
+	if err := e.NonLocalExitCheck(); err != nil {
+		return "", err
+	}
+
 	s := C.GoStringN(buffer, C.int(size))
-	C.free(unsafe.Pointer(buffer))
-	return s
+	return s, nil
 }
 
 func (e *Environment) String(s string) String {

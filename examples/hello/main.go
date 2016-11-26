@@ -44,9 +44,12 @@ func Hello(env *goemacs.Environment, nargs int,
 		// TODO: display error message
 		return stdlib.Nil
 	}
-	s := env.GoString(args[0])
-	stdlib.Message(fmt.Sprintf("Hello %s!", s))
+	s, err := env.GoString(args[0])
+	if err != nil {
+		return stdlib.Nil
+	}
 
+	stdlib.Message(fmt.Sprintf("Hello %s!", s))
 	return stdlib.Nil
 }
 

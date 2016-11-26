@@ -62,4 +62,8 @@ static inline emacs_value MakeFunction(emacs_env *env, int min_arity, int max_ar
                             documentation, (void*)idx);
 }
 
+static inline enum emacs_funcall_exit NonLocalExitCheck(emacs_env *env) {
+  return env->non_local_exit_check(env);
+}
+
 #endif /* GOEMACS_WRAPPER_H */

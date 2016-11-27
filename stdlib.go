@@ -23,20 +23,28 @@ package goemacs
 import "C"
 import "unsafe"
 
-type Value struct {
+type Value interface {
+	getVal() C.emacs_value
+}
+
+type baseValue struct {
 	val C.emacs_value
 }
 
+func (v baseValue) getVal() C.emacs_value {
+	return v.val
+}
+
 type Symbol struct {
-	Value
+	baseValue
 }
 
 type String struct {
-	Value
+	baseValue
 }
 
 type Function struct {
-	Value
+	baseValue
 }
 
 type StdLib struct {
@@ -60,7 +68,7 @@ func newStdLib(e *Environment) *StdLib {
 		env:         e,
 		messageFunc: C.Intern(e.env, messageStr),
 		fsetFunc:    C.Intern(e.env, fsetStr),
-		Nil:         Value{C.Intern(e.env, nilStr)},
+		Nil:         baseValue{C.Intern(e.env, nilStr)},
 	}
 }
 
@@ -74,7 +82,7 @@ func (stdlib *StdLib) Intern(s string) Symbol {
 	defer C.free(unsafe.Pointer(valStr))
 
 	return Symbol{
-		Value{
+		baseValue{
 			C.Intern(stdlib.env.env, valStr),
 		},
 	}

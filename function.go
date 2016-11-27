@@ -73,7 +73,7 @@ func emacs_call_function(
 	pargs := (*[1 << 30]C.emacs_value)(unsafe.Pointer(args))
 	arguments := make([]Value, n)
 	for i := 0; i < n; i++ {
-		arguments[i] = Value{
+		arguments[i] = baseValue{
 			val: pargs[i],
 		}
 	}
@@ -85,5 +85,5 @@ func emacs_call_function(
 		n,
 		arguments,
 		entry.data,
-	).val
+	).getVal()
 }

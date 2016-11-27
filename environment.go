@@ -40,13 +40,13 @@ func (e *Environment) StdLib() *StdLib {
 }
 
 func (e *Environment) MakeGlobalRef(ref Value) Value {
-	return Value{
-		C.MakeGlobalRef(e.env, ref.val),
+	return baseValue{
+		C.MakeGlobalRef(e.env, ref.getVal()),
 	}
 }
 
 func (e *Environment) FreeGlobalRef(ref Value) {
-	C.FreeGlobalRef(e.env, ref.val)
+	C.FreeGlobalRef(e.env, ref.getVal())
 }
 
 func (e *Environment) NonLocalExitCheck() error {
@@ -65,8 +65,8 @@ func (e *Environment) NonLocalExitCheck() error {
 }
 
 func (e *Environment) GoString(v Value) (string, error) {
-	size := C.StringSize(e.env, v.val)
-	buffer := C.CopyString(e.env, v.val, size)
+	size := C.StringSize(e.env, v.getVal())
+	buffer := C.CopyString(e.env, v.getVal(), size)
 	defer C.free(unsafe.Pointer(buffer))
 
 	if err := e.NonLocalExitCheck(); err != nil {
@@ -82,7 +82,7 @@ func (e *Environment) String(s string) String {
 	defer C.free(unsafe.Pointer(valStr))
 
 	return String{
-		Value{
+		baseValue{
 			C.MakeString(e.env, valStr, C.int(len(s))),
 		},
 	}
@@ -100,7 +100,7 @@ func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Functi
 	defer C.free(unsafe.Pointer(docStr))
 
 	return Function{
-		Value{
+		baseValue{
 			C.MakeFunction(e.env, cArity, cArity,
 				docStr, C.ptrdiff_t(idx)),
 		},

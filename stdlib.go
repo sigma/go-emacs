@@ -21,7 +21,10 @@ package goemacs
 #include "include/wrapper.h"
 */
 import "C"
-import "unsafe"
+import (
+	"fmt"
+	"unsafe"
+)
 
 type StdLib struct {
 	env         *Environment
@@ -69,7 +72,10 @@ func (stdlib *StdLib) Message(s string) {
 	C.Funcall(stdlib.env.env, stdlib.messageFunc, 1, &str)
 }
 
-func (stdlib *StdLib) Funcall(f Callable, args ...Value) Value {
+func (stdlib *StdLib) Funcall(f Callable, args ...Value) (Value, error) {
+	if !f.Callable() {
+		return stdlib.Nil, fmt.Errorf("symbol is not a function")
+	}
 	cargs := make([]C.emacs_value, len(args))
 	for i := 0; i < len(args); i++ {
 		cargs[i] = args[i].getVal()
@@ -77,7 +83,7 @@ func (stdlib *StdLib) Funcall(f Callable, args ...Value) Value {
 	return baseValue{
 		env: stdlib.env,
 		val: C.Funcall(stdlib.env.env, f.getVal(), C.int(len(args)), &cargs[0]),
-	}
+	}, nil
 }
 
 func (stdlib *StdLib) Intern(s string) Symbol {
@@ -89,14 +95,14 @@ func (stdlib *StdLib) Intern(s string) Symbol {
 			env: stdlib.env,
 			val: C.Intern(stdlib.env.env, valStr),
 		},
-		callable: false,
 	}
 }
 
 func (stdlib *StdLib) Fset(sym Symbol, f Function) {
 	args := [2]C.emacs_value{sym.getVal(), f.getVal()}
 	C.Funcall(stdlib.env.env, stdlib.fsetFunc, 2, &args[0])
-	sym.makeCallable()
+}
+
 func (stdlib *StdLib) Fboundp(sym Symbol) bool {
 	symbol := sym.getVal()
 	val := baseValue{

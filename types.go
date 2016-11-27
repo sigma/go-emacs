@@ -56,20 +56,14 @@ type Callable interface {
 
 type Symbol interface {
 	Callable
-	makeCallable()
 }
 
 type symbolValue struct {
 	baseValue
-	callable bool
 }
 
 func (s symbolValue) Callable() bool {
-	return s.callable
-}
-
-func (s symbolValue) makeCallable() {
-	s.callable = true
+	return s.env.StdLib().Fboundp(s)
 }
 
 type Function interface {

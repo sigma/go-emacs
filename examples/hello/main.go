@@ -52,7 +52,10 @@ func Hello(env *emacs.Environment, nargs int,
 		return stdlib.Nil
 	}
 
-	stdlib.Message(fmt.Sprintf("Hello %s!", s))
+	messages := make(chan string)
+	go func() { messages <- s }()
+
+	stdlib.Message(fmt.Sprintf("Hello %s!", <-messages))
 	return stdlib.T
 }
 

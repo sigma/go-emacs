@@ -23,68 +23,6 @@ package goemacs
 import "C"
 import "unsafe"
 
-type Value interface {
-	getVal() C.emacs_value
-}
-
-type baseValue struct {
-	val C.emacs_value
-	env *Environment
-}
-
-func (v baseValue) getVal() C.emacs_value {
-	return v.val
-}
-
-type String interface {
-	Value
-	String() string
-}
-
-type stringValue struct {
-	baseValue
-}
-
-func (s stringValue) String() string {
-	res, _ := s.env.GoString(s)
-	return res
-}
-
-type Callable interface {
-	Value
-	Callable() bool
-}
-
-type Symbol interface {
-	Callable
-	makeCallable()
-}
-
-type symbolValue struct {
-	baseValue
-	callable bool
-}
-
-func (s symbolValue) Callable() bool {
-	return s.callable
-}
-
-func (s symbolValue) makeCallable() {
-	s.callable = true
-}
-
-type Function interface {
-	Callable
-}
-
-type functionValue struct {
-	baseValue
-}
-
-func (f functionValue) Callable() bool {
-	return true
-}
-
 type StdLib struct {
 	env         *Environment
 	messageFunc C.emacs_value

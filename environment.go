@@ -80,7 +80,7 @@ func (e *Environment) GoString(v Value) (string, error) {
 		return "", err
 	}
 
-	s := C.GoStringN(buffer, C.int(size))
+	s := C.GoString(buffer)
 	return s, nil
 }
 

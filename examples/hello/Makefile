@@ -10,4 +10,4 @@ clean:
 all: hello.so
 
 test: hello.so
-	$(EMACS) --batch --load hello.so --eval '(hello "world")'
+	$(EMACS) --batch --load hello.so --eval '(when (featurep (quote hello)) (hello "world"))'

@@ -58,6 +58,7 @@ func initModule(env *emacs.Environment) {
 	log.Info("calling symbol after it's bound")
 	stdlib.Funcall(helloSym, env.String("symbol"))
 
+	stdlib.Provide(helloSym)
 	log.Info("module initialization complete")
 }
 

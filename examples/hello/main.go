@@ -23,14 +23,14 @@ import "C"
 import (
 	"fmt"
 
-	"github.com/sigma/goemacs"
+	emacs "github.com/sigma/goemacs"
 )
 
 func init() {
-	goemacs.Register(initModule)
+	emacs.Register(initModule)
 }
 
-func initModule(env *goemacs.Environment) {
+func initModule(env *emacs.Environment) {
 	stdlib := env.StdLib()
 	stdlib.Message("hello from go init")
 
@@ -41,8 +41,8 @@ func initModule(env *goemacs.Environment) {
 	stdlib.Fset(helloSym, helloFunc)
 }
 
-func Hello(env *goemacs.Environment, nargs int,
-	args []goemacs.Value, _ interface{}) goemacs.Value {
+func Hello(env *emacs.Environment, nargs int,
+	args []emacs.Value, _ interface{}) emacs.Value {
 	stdlib := env.StdLib()
 
 	// we're guaranteed to be called with 1 argument

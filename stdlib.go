@@ -35,12 +35,6 @@ type StdLib struct {
 	T           Value
 }
 
-func (e *Environment) intern(s string) C.emacs_value {
-	str := C.CString(s)
-	defer C.free(unsafe.Pointer(str))
-	return C.Intern(e.env, str)
-}
-
 func newStdLib(e *Environment) *StdLib {
 	n := baseValue{
 		env: e,

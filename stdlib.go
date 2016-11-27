@@ -27,6 +27,7 @@ type StdLib struct {
 	env         *Environment
 	messageFunc C.emacs_value
 	fsetFunc    C.emacs_value
+	fboundpFunc C.emacs_value
 	Nil         Value
 	T           Value
 }
@@ -38,6 +39,9 @@ func newStdLib(e *Environment) *StdLib {
 	fsetStr := C.CString("fset")
 	defer C.free(unsafe.Pointer(fsetStr))
 
+	fboundpStr := C.CString("fboundp")
+	defer C.free(unsafe.Pointer(fboundpStr))
+
 	nilStr := C.CString("nil")
 	defer C.free(unsafe.Pointer(nilStr))
 
@@ -48,6 +52,7 @@ func newStdLib(e *Environment) *StdLib {
 		env:         e,
 		messageFunc: C.Intern(e.env, messageStr),
 		fsetFunc:    C.Intern(e.env, fsetStr),
+		fboundpFunc: C.Intern(e.env, fboundpStr),
 		Nil: baseValue{
 			env: e,
 			val: C.Intern(e.env, nilStr),
@@ -92,4 +97,11 @@ func (stdlib *StdLib) Fset(sym Symbol, f Function) {
 	args := [2]C.emacs_value{sym.getVal(), f.getVal()}
 	C.Funcall(stdlib.env.env, stdlib.fsetFunc, 2, &args[0])
 	sym.makeCallable()
+func (stdlib *StdLib) Fboundp(sym Symbol) bool {
+	symbol := sym.getVal()
+	val := baseValue{
+		env: stdlib.env,
+		val: C.Funcall(stdlib.env.env, stdlib.fboundpFunc, 1, &symbol),
+	}
+	return stdlib.env.GoBool(val)
 }

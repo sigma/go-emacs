@@ -81,7 +81,7 @@ func (e *Environment) String(s string) String {
 	valStr := C.CString(s)
 	defer C.free(unsafe.Pointer(valStr))
 
-	return String{
+	return stringValue{
 		baseValue{
 			C.MakeString(e.env, valStr, C.int(len(s))),
 		},

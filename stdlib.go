@@ -35,11 +35,15 @@ func (v baseValue) getVal() C.emacs_value {
 	return v.val
 }
 
-type Symbol struct {
+type String interface {
+	Value
+}
+
+type stringValue struct {
 	baseValue
 }
 
-type String struct {
+type Symbol struct {
 	baseValue
 }
 
@@ -73,8 +77,8 @@ func newStdLib(e *Environment) *StdLib {
 }
 
 func (stdlib *StdLib) Message(s string) {
-	str := stdlib.env.String(s)
-	C.Funcall(stdlib.env.env, stdlib.messageFunc, 1, &str.val)
+	str := stdlib.env.String(s).getVal()
+	C.Funcall(stdlib.env.env, stdlib.messageFunc, 1, &str)
 }
 
 func (stdlib *StdLib) Funcall(f Function, args ...Value) Value {

@@ -28,6 +28,7 @@ type StdLib struct {
 	messageFunc C.emacs_value
 	fsetFunc    C.emacs_value
 	Nil         Value
+	T           Value
 }
 
 func newStdLib(e *Environment) *StdLib {
@@ -40,6 +41,9 @@ func newStdLib(e *Environment) *StdLib {
 	nilStr := C.CString("nil")
 	defer C.free(unsafe.Pointer(nilStr))
 
+	tStr := C.CString("t")
+	defer C.free(unsafe.Pointer(tStr))
+
 	return &StdLib{
 		env:         e,
 		messageFunc: C.Intern(e.env, messageStr),
@@ -47,6 +51,10 @@ func newStdLib(e *Environment) *StdLib {
 		Nil: baseValue{
 			env: e,
 			val: C.Intern(e.env, nilStr),
+		},
+		T: baseValue{
+			env: e,
+			val: C.Intern(e.env, tStr),
 		},
 	}
 }

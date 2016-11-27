@@ -53,7 +53,7 @@ func Hello(env *emacs.Environment, nargs int,
 	}
 
 	stdlib.Message(fmt.Sprintf("Hello %s!", s))
-	return stdlib.Nil
+	return stdlib.T
 }
 
 func main() {}

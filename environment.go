@@ -41,7 +41,8 @@ func (e *Environment) StdLib() *StdLib {
 
 func (e *Environment) MakeGlobalRef(ref Value) Value {
 	return baseValue{
-		C.MakeGlobalRef(e.env, ref.getVal()),
+		env: e,
+		val: C.MakeGlobalRef(e.env, ref.getVal()),
 	}
 }
 
@@ -83,7 +84,8 @@ func (e *Environment) String(s string) String {
 
 	return stringValue{
 		baseValue{
-			C.MakeString(e.env, valStr, C.int(len(s))),
+			env: e,
+			val: C.MakeString(e.env, valStr, C.int(len(s))),
 		},
 	}
 }
@@ -101,7 +103,8 @@ func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Functi
 
 	return Function{
 		baseValue{
-			C.MakeFunction(e.env, cArity, cArity,
+			env: e,
+			val: C.MakeFunction(e.env, cArity, cArity,
 				docStr, C.ptrdiff_t(idx)),
 		},
 	}

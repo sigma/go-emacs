@@ -29,6 +29,7 @@ type Value interface {
 
 type baseValue struct {
 	val C.emacs_value
+	env *Environment
 }
 
 func (v baseValue) getVal() C.emacs_value {
@@ -72,7 +73,10 @@ func newStdLib(e *Environment) *StdLib {
 		env:         e,
 		messageFunc: C.Intern(e.env, messageStr),
 		fsetFunc:    C.Intern(e.env, fsetStr),
-		Nil:         baseValue{C.Intern(e.env, nilStr)},
+		Nil: baseValue{
+			env: e,
+			val: C.Intern(e.env, nilStr),
+		},
 	}
 }
 
@@ -87,7 +91,8 @@ func (stdlib *StdLib) Funcall(f Function, args ...Value) Value {
 		cargs[i] = args[i].getVal()
 	}
 	return baseValue{
-		C.Funcall(stdlib.env.env, f.getVal(), C.int(len(args)), &cargs[0]),
+		env: stdlib.env,
+		val: C.Funcall(stdlib.env.env, f.getVal(), C.int(len(args)), &cargs[0]),
 	}
 }
 
@@ -97,7 +102,8 @@ func (stdlib *StdLib) Intern(s string) Symbol {
 
 	return Symbol{
 		baseValue{
-			C.Intern(stdlib.env.env, valStr),
+			env: stdlib.env,
+			val: C.Intern(stdlib.env.env, valStr),
 		},
 	}
 }

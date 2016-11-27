@@ -38,10 +38,16 @@ func (v baseValue) getVal() C.emacs_value {
 
 type String interface {
 	Value
+	String() string
 }
 
 type stringValue struct {
 	baseValue
+}
+
+func (s stringValue) String() string {
+	res, _ := s.env.GoString(s)
+	return res
 }
 
 type Symbol struct {

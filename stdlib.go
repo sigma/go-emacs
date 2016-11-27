@@ -27,12 +27,15 @@ import (
 )
 
 type StdLib struct {
-	env         *Environment
+	env *Environment
+
 	messageFunc C.emacs_value
 	fsetFunc    C.emacs_value
 	fboundpFunc C.emacs_value
-	Nil         Value
-	T           Value
+	provideFunc C.emacs_value
+
+	Nil Value
+	T   Value
 }
 
 func newStdLib(e *Environment) *StdLib {
@@ -52,6 +55,7 @@ func newStdLib(e *Environment) *StdLib {
 		messageFunc: e.intern("message"),
 		fsetFunc:    e.intern("fset"),
 		fboundpFunc: e.intern("fboundp"),
+		provideFunc: e.intern("provide"),
 
 		Nil: n,
 		T:   t,
@@ -101,4 +105,9 @@ func (stdlib *StdLib) Fboundp(sym Symbol) bool {
 		val: C.Funcall(stdlib.env.env, stdlib.fboundpFunc, 1, &symbol),
 	}
 	return stdlib.env.GoBool(val)
+}
+
+func (stdlib *StdLib) Provide(sym Symbol) {
+	symbol := sym.getVal()
+	C.Funcall(stdlib.env.env, stdlib.provideFunc, 1, &symbol)
 }

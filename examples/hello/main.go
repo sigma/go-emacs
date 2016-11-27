@@ -36,9 +36,10 @@ func initModule(env *emacs.Environment) {
 
 	helloFunc := env.MakeFunction(Hello, 1, "hello")
 	helloSym := stdlib.Intern("hello")
+	stdlib.Fset(helloSym, helloFunc)
 
 	stdlib.Funcall(helloFunc, env.String("function"))
-	stdlib.Fset(helloSym, helloFunc)
+	stdlib.Funcall(helloSym, env.String("symbol"))
 }
 
 func Hello(env *emacs.Environment, nargs int,

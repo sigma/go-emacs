@@ -63,6 +63,10 @@ static inline char* CopyString(emacs_env *env, emacs_value value, ptrdiff_t size
   return buffer;
 }
 
+static inline bool IsNotNil(emacs_env *env, emacs_value value) {
+  return env->is_not_nil(env, value);
+}
+
 static inline emacs_value MakeFunction(emacs_env *env, int min_arity, int max_arity,
                                        const char* documentation, ptrdiff_t idx) {
   return env->make_function(env, min_arity, max_arity,

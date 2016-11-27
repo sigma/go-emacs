@@ -30,3 +30,4 @@ The following resources have been immensely useful:
 * http://nullprogram.com/blog/2016/11/05/
 * https://blog.filippo.io/building-python-modules-with-go-1-5/
 * http://blog.ralch.com/tutorial/golang-sharing-libraries/
+* https://golang.org/cmd/cgo/

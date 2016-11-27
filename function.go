@@ -26,7 +26,25 @@ import (
 	"unsafe"
 )
 
-type FunctionType func(*Environment, int, []Value, interface{}) Value
+type FunctionCallContext struct {
+	env  *Environment
+	args []Value
+	data interface{}
+}
+
+func (ctx *FunctionCallContext) Environment() *Environment {
+	return ctx.env
+}
+
+func (ctx *FunctionCallContext) StdLib() *StdLib {
+	return ctx.env.StdLib()
+}
+
+func (ctx *FunctionCallContext) StringArg(idx int) (string, error) {
+	return ctx.env.GoString(ctx.args[idx])
+}
+
+type FunctionType func(*FunctionCallContext) Value
 
 type FunctionEntry struct {
 	f     FunctionType
@@ -79,11 +97,12 @@ func emacs_call_function(
 	}
 	entry := lookup(int(idx))
 	return entry.f(
-		&Environment{
-			env: env,
+		&FunctionCallContext{
+			&Environment{
+				env: env,
+			},
+			arguments,
+			entry.data,
 		},
-		n,
-		arguments,
-		entry.data,
 	).getVal()
 }

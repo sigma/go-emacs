@@ -42,12 +42,11 @@ func initModule(env *emacs.Environment) {
 	stdlib.Funcall(helloSym, env.String("symbol"))
 }
 
-func Hello(env *emacs.Environment, nargs int,
-	args []emacs.Value, _ interface{}) emacs.Value {
-	stdlib := env.StdLib()
+func Hello(ctx *emacs.FunctionCallContext) emacs.Value {
+	stdlib := ctx.StdLib()
 
 	// we're guaranteed to be called with 1 argument
-	s, err := env.GoString(args[0])
+	s, err := ctx.StringArg(0)
 	if err != nil {
 		return stdlib.Nil
 	}

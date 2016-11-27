@@ -21,6 +21,7 @@ package goemacs
 #include "include/wrapper.h"
 */
 import "C"
+import "unsafe"
 
 var initFuncs = make([]func(*Environment), 0)
 
@@ -38,4 +39,34 @@ func emacs_module_init(e *C.struct_emacs_runtime) C.int {
 		f(&env)
 	}
 	return 0
+}
+
+//export emacs_call_function
+func emacs_call_function(
+	//FIXME: emacs_env_25 shouldn't be used
+	env *C.struct_emacs_env_25, nargs C.ptrdiff_t,
+	args *C.emacs_value, idx C.ptrdiff_t) C.emacs_value {
+
+	e := &Environment{
+		env: env,
+	}
+
+	n := int(nargs)
+	pargs := (*[1 << 30]C.emacs_value)(unsafe.Pointer(args))
+
+	arguments := make([]Value, n)
+	for i := 0; i < n; i++ {
+		arguments[i] = baseValue{
+			env: e,
+			val: pargs[i],
+		}
+	}
+	entry := lookup(int(idx))
+	return entry.f(
+		&FunctionCallContext{
+			e,
+			arguments,
+			entry.data,
+		},
+	).getVal()
 }

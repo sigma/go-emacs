@@ -17,14 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 package goemacs
 
-/*
-#include "include/wrapper.h"
-*/
-import "C"
-import (
-	"sync"
-	"unsafe"
-)
+import "sync"
 
 type FunctionCallContext struct {
 	env  *Environment
@@ -79,30 +72,4 @@ func unregister(i int) {
 	mu.Lock()
 	defer mu.Unlock()
 	delete(fns, i)
-}
-
-//export emacs_call_function
-func emacs_call_function(
-	//FIXME: emacs_env_25 shouldn't be used
-	env *C.struct_emacs_env_25, nargs C.ptrdiff_t,
-	args *C.emacs_value, idx C.ptrdiff_t) C.emacs_value {
-
-	n := int(nargs)
-	pargs := (*[1 << 30]C.emacs_value)(unsafe.Pointer(args))
-	arguments := make([]Value, n)
-	for i := 0; i < n; i++ {
-		arguments[i] = baseValue{
-			val: pargs[i],
-		}
-	}
-	entry := lookup(int(idx))
-	return entry.f(
-		&FunctionCallContext{
-			&Environment{
-				env: env,
-			},
-			arguments,
-			entry.data,
-		},
-	).getVal()
 }

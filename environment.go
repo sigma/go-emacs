@@ -101,7 +101,7 @@ func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Functi
 	docStr := C.CString(doc)
 	defer C.free(unsafe.Pointer(docStr))
 
-	return Function{
+	return functionValue{
 		baseValue{
 			env: e,
 			val: C.MakeFunction(e.env, cArity, cArity,

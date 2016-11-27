@@ -50,12 +50,31 @@ func (s stringValue) String() string {
 	return res
 }
 
-type Symbol struct {
+type Symbol interface {
+	Value
+	Callable() bool
+}
+
+type symbolValue struct {
+	baseValue
+	callable bool
+}
+
+func (s symbolValue) Callable() bool {
+	return s.callable
+}
+
+type Function interface {
+	Value
+	Callable() bool
+}
+
+type functionValue struct {
 	baseValue
 }
 
-type Function struct {
-	baseValue
+func (f functionValue) Callable() bool {
+	return true
 }
 
 type StdLib struct {
@@ -106,15 +125,16 @@ func (stdlib *StdLib) Intern(s string) Symbol {
 	valStr := C.CString(s)
 	defer C.free(unsafe.Pointer(valStr))
 
-	return Symbol{
-		baseValue{
+	return symbolValue{
+		baseValue: baseValue{
 			env: stdlib.env,
 			val: C.Intern(stdlib.env.env, valStr),
 		},
+		callable: false,
 	}
 }
 
 func (stdlib *StdLib) Fset(sym Symbol, f Function) {
-	args := [2]C.emacs_value{sym.val, f.val}
+	args := [2]C.emacs_value{sym.getVal(), f.getVal()}
 	C.Funcall(stdlib.env.env, stdlib.fsetFunc, 2, &args[0])
 }

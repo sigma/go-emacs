@@ -38,7 +38,7 @@ func initModule(env *emacs.Environment) {
 	stdlib.Message("hello from go init")
 
 	log.Info("creating native function")
-	helloFunc := env.MakeFunction(Hello, 1, "hello")
+	helloFunc := env.MakeFunction(Hello, 1, "hello", nil)
 
 	log.Info("creating symbol")
 	helloSym := stdlib.Intern("hello")

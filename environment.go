@@ -100,12 +100,13 @@ func (e *Environment) GoBool(v Value) bool {
 	return bool(C.IsNotNil(e.env, v.getVal()))
 }
 
-func (e *Environment) MakeFunction(f FunctionType, arity int, doc string) Function {
+func (e *Environment) MakeFunction(f FunctionType, arity int, doc string, data interface{}) Function {
 	cArity := C.int(arity)
 	idx := register(&FunctionEntry{
 		f:     f,
 		arity: arity,
 		doc:   doc,
+		data:  data,
 	})
 
 	docStr := C.CString(doc)

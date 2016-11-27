@@ -35,35 +35,32 @@ type StdLib struct {
 	T           Value
 }
 
+func (e *Environment) intern(s string) C.emacs_value {
+	str := C.CString(s)
+	defer C.free(unsafe.Pointer(str))
+	return C.Intern(e.env, str)
+}
+
 func newStdLib(e *Environment) *StdLib {
-	messageStr := C.CString("message")
-	defer C.free(unsafe.Pointer(messageStr))
+	n := baseValue{
+		env: e,
+		val: e.intern("nil"),
+	}
 
-	fsetStr := C.CString("fset")
-	defer C.free(unsafe.Pointer(fsetStr))
-
-	fboundpStr := C.CString("fboundp")
-	defer C.free(unsafe.Pointer(fboundpStr))
-
-	nilStr := C.CString("nil")
-	defer C.free(unsafe.Pointer(nilStr))
-
-	tStr := C.CString("t")
-	defer C.free(unsafe.Pointer(tStr))
+	t := baseValue{
+		env: e,
+		val: e.intern("t"),
+	}
 
 	return &StdLib{
-		env:         e,
-		messageFunc: C.Intern(e.env, messageStr),
-		fsetFunc:    C.Intern(e.env, fsetStr),
-		fboundpFunc: C.Intern(e.env, fboundpStr),
-		Nil: baseValue{
-			env: e,
-			val: C.Intern(e.env, nilStr),
-		},
-		T: baseValue{
-			env: e,
-			val: C.Intern(e.env, tStr),
-		},
+		env: e,
+
+		messageFunc: e.intern("message"),
+		fsetFunc:    e.intern("fset"),
+		fboundpFunc: e.intern("fboundp"),
+
+		Nil: n,
+		T:   t,
 	}
 }
 

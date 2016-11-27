@@ -100,6 +100,14 @@ func (e *Environment) GoBool(v Value) bool {
 	return bool(C.IsNotNil(e.env, v.getVal()))
 }
 
+func (e *Environment) Bool(b bool) Value {
+	stdlib := e.StdLib()
+	if b {
+		return stdlib.T
+	}
+	return stdlib.Nil
+}
+
 func (e *Environment) MakeFunction(f FunctionType, arity int, doc string, data interface{}) Function {
 	cArity := C.int(arity)
 	idx := register(&FunctionEntry{

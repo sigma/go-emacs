@@ -39,6 +39,16 @@ func (e *Environment) StdLib() *StdLib {
 	return e.stdlib
 }
 
+func (e *Environment) MakeGlobalRef(ref Value) Value {
+	return Value{
+		C.MakeGlobalRef(e.env, ref.val),
+	}
+}
+
+func (e *Environment) FreeGlobalRef(ref Value) {
+	C.FreeGlobalRef(e.env, ref.val)
+}
+
 func (e *Environment) NonLocalExitCheck() error {
 	code := C.NonLocalExitCheck(e.env)
 	if code == C.emacs_funcall_exit_return {

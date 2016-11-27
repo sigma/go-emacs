@@ -31,6 +31,14 @@ static inline emacs_env * GetEnvironment(struct emacs_runtime *ert) {
   return ert->get_environment(ert);
 }
 
+static inline emacs_value MakeGlobalRef(emacs_env *env, emacs_value ref) {
+  return env->make_global_ref(env, ref);
+}
+
+static inline void FreeGlobalRef(emacs_env *env, emacs_value ref) {
+  return env->free_global_ref(env, ref);
+}
+
 static inline emacs_value Intern(emacs_env *env, const char* name) {
   return env->intern(env, name);
 }

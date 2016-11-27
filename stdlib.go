@@ -77,6 +77,16 @@ func (stdlib *StdLib) Message(s string) {
 	C.Funcall(stdlib.env.env, stdlib.messageFunc, 1, &str.val)
 }
 
+func (stdlib *StdLib) Funcall(f Function, args ...Value) Value {
+	cargs := make([]C.emacs_value, len(args))
+	for i := 0; i < len(args); i++ {
+		cargs[i] = args[i].getVal()
+	}
+	return baseValue{
+		C.Funcall(stdlib.env.env, f.getVal(), C.int(len(args)), &cargs[0]),
+	}
+}
+
 func (stdlib *StdLib) Intern(s string) Symbol {
 	valStr := C.CString(s)
 	defer C.free(unsafe.Pointer(valStr))

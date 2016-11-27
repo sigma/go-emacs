@@ -11,5 +11,6 @@ $ cd examples/hello
 $ make test
 /usr/local/bin/emacs --batch --load hello.so --eval '(hello "world")'
 hello from go init
+Hello function!
 Hello world!
 ```

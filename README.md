@@ -10,8 +10,17 @@ Requires dynamic modules support to be built into Emacs (obviously): check that
 $ cd examples/hello
 $ make test
 /usr/local/bin/emacs --batch --load hello.so --eval '(hello "world")'
+INFO[0000] module initialization started
 hello from go init
+INFO[0000] creating native function
+INFO[0000] creating symbol
+INFO[0000] calling function
 Hello function!
+INFO[0000] calling symbol before it's bound
+symbol is not a function
+INFO[0000] binding symbol to function
+INFO[0000] calling symbol after it's bound
 Hello symbol!
+INFO[0000] module initialization complete
 Hello world!
 ```

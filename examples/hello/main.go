@@ -23,6 +23,7 @@ import "C"
 import (
 	"fmt"
 
+	log "github.com/Sirupsen/logrus"
 	emacs "github.com/sigma/goemacs"
 )
 
@@ -31,15 +32,33 @@ func init() {
 }
 
 func initModule(env *emacs.Environment) {
+	log.Info("module initialization started")
+
 	stdlib := env.StdLib()
 	stdlib.Message("hello from go init")
 
+	log.Info("creating native function")
 	helloFunc := env.MakeFunction(Hello, 1, "hello")
+
+	log.Info("creating symbol")
 	helloSym := stdlib.Intern("hello")
+
+	log.Info("calling function")
+	stdlib.Funcall(helloFunc, env.String("function"))
+
+	log.Info("calling symbol before it's bound")
+	_, err := stdlib.Funcall(helloSym, env.String("symbol"))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	log.Info("binding symbol to function")
 	stdlib.Fset(helloSym, helloFunc)
 
-	stdlib.Funcall(helloFunc, env.String("function"))
+	log.Info("calling symbol after it's bound")
 	stdlib.Funcall(helloSym, env.String("symbol"))
+
+	log.Info("module initialization complete")
 }
 
 func Hello(ctx *emacs.FunctionCallContext) emacs.Value {

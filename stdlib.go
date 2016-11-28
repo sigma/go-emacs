@@ -29,10 +29,9 @@ import (
 type StdLib struct {
 	env *Environment
 
-	messageFunc C.emacs_value
-	fsetFunc    C.emacs_value
+	// fboundp cannot be implemented with Intern/Funcall since it's used in
+	// Funcall
 	fboundpFunc C.emacs_value
-	provideFunc C.emacs_value
 
 	Nil Value
 	T   Value
@@ -52,19 +51,11 @@ func newStdLib(e *Environment) *StdLib {
 	return &StdLib{
 		env: e,
 
-		messageFunc: e.intern("message"),
-		fsetFunc:    e.intern("fset"),
 		fboundpFunc: e.intern("fboundp"),
-		provideFunc: e.intern("provide"),
 
 		Nil: n,
 		T:   t,
 	}
-}
-
-func (stdlib *StdLib) Message(s string) {
-	str := stdlib.env.String(s).getVal()
-	C.Funcall(stdlib.env.env, stdlib.messageFunc, 1, &str)
 }
 
 func (stdlib *StdLib) Funcall(f Callable, args ...Value) (Value, error) {
@@ -104,8 +95,8 @@ func (stdlib *StdLib) Intern(s string) Symbol {
 }
 
 func (stdlib *StdLib) Fset(sym Symbol, f Function) {
-	args := [2]C.emacs_value{sym.getVal(), f.getVal()}
-	C.Funcall(stdlib.env.env, stdlib.fsetFunc, 2, &args[0])
+	fset := stdlib.Intern("fset")
+	stdlib.Funcall(fset, sym, f)
 }
 
 func (stdlib *StdLib) Fboundp(sym Symbol) bool {
@@ -118,6 +109,11 @@ func (stdlib *StdLib) Fboundp(sym Symbol) bool {
 }
 
 func (stdlib *StdLib) Provide(sym Symbol) {
-	symbol := sym.getVal()
-	C.Funcall(stdlib.env.env, stdlib.provideFunc, 1, &symbol)
+	provide := stdlib.Intern("provide")
+	stdlib.Funcall(provide, sym)
+}
+
+func (stdlib *StdLib) Message(s string) {
+	message := stdlib.Intern("message")
+	stdlib.Funcall(message, stdlib.env.String(s))
 }

@@ -67,6 +67,10 @@ static inline bool IsNotNil(emacs_env *env, emacs_value value) {
   return env->is_not_nil(env, value);
 }
 
+static inline bool Eq(emacs_env *env, emacs_value a, emacs_value b) {
+  return env->eq(env, a, b);
+}
+
 static inline emacs_value MakeFunction(emacs_env *env, int min_arity, int max_arity,
                                        const char* documentation, ptrdiff_t idx) {
   return env->make_function(env, min_arity, max_arity,

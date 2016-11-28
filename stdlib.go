@@ -81,6 +81,16 @@ func (stdlib *StdLib) Funcall(f Callable, args ...Value) (Value, error) {
 	}, nil
 }
 
+func (stdlib *StdLib) Eq(a, b Value) bool {
+	return bool(C.Eq(stdlib.env.env, a.getVal(), b.getVal()))
+}
+
+func (stdlib *StdLib) Equal(a, b Value) bool {
+	equal := stdlib.Intern("equal")
+	res, _ := stdlib.Funcall(equal, a, b)
+	return !stdlib.Eq(res, stdlib.Nil)
+}
+
 func (stdlib *StdLib) Intern(s string) Symbol {
 	valStr := C.CString(s)
 	defer C.free(unsafe.Pointer(valStr))

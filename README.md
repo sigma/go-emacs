@@ -9,7 +9,7 @@ Requires dynamic modules support to be built into Emacs (obviously): check that
 ```
 $ cd examples/hello
 $ make test
-/usr/local/bin/emacs --batch --load hello.so --eval '(hello "world")'
+/usr/local/bin/emacs --batch --load hello.so --eval '(when (featurep (quote hello)) (hello "world"))'
 INFO[0000] module initialization started
 hello from go init
 INFO[0000] creating native function
@@ -24,6 +24,7 @@ Hello symbol!
 INFO[0000] module initialization complete
 Hello world!
 ```
+
 # Credits
 The following resources have been immensely useful:
 * http://diobla.info/blog-archive/modules-tut.html

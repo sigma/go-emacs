@@ -49,6 +49,14 @@ func (s stringValue) String() string {
 	return res
 }
 
+type Int interface {
+	Value
+}
+
+type intValue struct {
+	baseValue
+}
+
 type Callable interface {
 	Value
 	Callable() bool

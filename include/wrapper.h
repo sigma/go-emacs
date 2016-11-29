@@ -67,6 +67,14 @@ static inline bool IsNotNil(emacs_env *env, emacs_value value) {
   return env->is_not_nil(env, value);
 }
 
+static inline intmax_t ExtractInteger(emacs_env *env, emacs_value value) {
+  return env->extract_integer(env, value);
+}
+
+static inline emacs_value MakeInteger(emacs_env *env, intmax_t value) {
+  return env->make_integer(env, value);
+}
+
 static inline bool Eq(emacs_env *env, emacs_value a, emacs_value b) {
   return env->eq(env, a, b);
 }

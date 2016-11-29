@@ -108,6 +108,19 @@ func (e *Environment) Bool(b bool) Value {
 	return stdlib.Nil
 }
 
+func (e *Environment) GoInt(v Value) int {
+	return int(C.ExtractInteger(e.env, v.getVal()))
+}
+
+func (e *Environment) Int(i int) Int {
+	return intValue{
+		baseValue{
+			env: e,
+			val: C.MakeInteger(e.env, C.intmax_t(i)),
+		},
+	}
+}
+
 func (e *Environment) MakeFunction(f FunctionType, arity int, doc string, data interface{}) Function {
 	cArity := C.int(arity)
 	idx := register(&FunctionEntry{

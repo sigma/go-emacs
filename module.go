@@ -70,3 +70,8 @@ func emacs_call_function(
 		},
 	).getVal()
 }
+
+//export emacs_finalize_function
+func emacs_finalize_function(idx C.ptrdiff_t) {
+
+}

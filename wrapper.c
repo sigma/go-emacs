@@ -19,6 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 emacs_value emacs_function_wrapper(emacs_env* env, ptrdiff_t nargs,
                                    emacs_value args[], void* data) {
-  int idx = (ptrdiff_t)data;
-  return emacs_call_function(env, nargs, args, (ptrdiff_t)data);
+  ptrdiff_t idx = (ptrdiff_t)data;
+  return emacs_call_function(env, nargs, args, idx);
+}
+
+void emacs_pointer_wrapper(void* ptr) {
+  ptrdiff_t idx = (ptrdiff_t)ptr;
+  emacs_finalize_function(idx);
 }

@@ -27,6 +27,10 @@ extern emacs_value emacs_function_wrapper(emacs_env* env, ptrdiff_t nargs,
 extern emacs_value emacs_call_function (emacs_env* env, ptrdiff_t nargs,
                                         emacs_value *args, ptrdiff_t idx);
 
+extern void emacs_pointer_wrapper(void* ptr);
+
+extern void emacs_finalize_function (ptrdiff_t idx);
+
 static inline emacs_env * GetEnvironment(struct emacs_runtime *ert) {
   return ert->get_environment(ert);
 }
@@ -96,6 +100,18 @@ static inline emacs_value MakeFunction(emacs_env *env, int min_arity, int max_ar
 
 static inline enum emacs_funcall_exit NonLocalExitCheck(emacs_env *env) {
   return env->non_local_exit_check(env);
+}
+
+static inline emacs_value MakeUserPointer(emacs_env *env, ptrdiff_t idx) {
+  return env->make_user_ptr(env, &emacs_pointer_wrapper, (void*)idx);
+}
+
+static inline ptrdiff_t GetUserPointer(emacs_env *env, emacs_value uptr) {
+  return (ptrdiff_t)env->get_user_ptr(env, uptr);
+}
+
+static inline void SetUserPointer(emacs_env *env, emacs_value uptr, ptrdiff_t idx) {
+  env->set_user_ptr(env, uptr, (void*)idx);
 }
 
 #endif /* GOEMACS_WRAPPER_H */

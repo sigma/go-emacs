@@ -154,3 +154,17 @@ func (e *Environment) MakeFunction(f FunctionType, arity int, doc string, data i
 		},
 	}
 }
+
+func (e *Environment) MakeUserPointer(obj interface{}) UserPointer {
+	val := &SimplePointerEntry{
+		obj: obj,
+	}
+	idx := ptrReg.Register(val)
+
+	return userPointerValue{
+		baseValue{
+			env: e,
+			val: C.MakeUserPointer(e.env, C.ptrdiff_t(idx)),
+		},
+	}
+}

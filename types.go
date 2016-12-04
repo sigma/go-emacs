@@ -93,3 +93,11 @@ type functionValue struct {
 func (f functionValue) Callable() bool {
 	return true
 }
+
+type UserPointer interface {
+	Value
+}
+
+type userPointerValue struct {
+	baseValue
+}

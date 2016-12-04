@@ -73,5 +73,9 @@ func emacs_call_function(
 
 //export emacs_finalize_function
 func emacs_finalize_function(idx C.ptrdiff_t) {
+	index := int64(idx)
+	defer ptrReg.Unregister(index)
 
+	entry := ptrReg.Lookup(index)
+	entry.Finalize()
 }

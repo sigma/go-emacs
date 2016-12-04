@@ -31,12 +31,12 @@ func Register(f func(*Environment)) {
 
 //export emacs_module_init
 func emacs_module_init(e *C.struct_emacs_runtime) C.int {
-	env := Environment{
+	env := &Environment{
 		env: C.GetEnvironment(e),
 	}
 
 	for _, f := range initFuncs {
-		f(&env)
+		f(env)
 	}
 	return 0
 }
@@ -61,7 +61,7 @@ func emacs_call_function(
 			val: pargs[i],
 		}
 	}
-	entry := lookup(int(idx))
+	entry := funcReg.Lookup(int64(idx))
 	return entry.f(
 		&FunctionCallContext{
 			e,

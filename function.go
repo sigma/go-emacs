@@ -17,8 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 package goemacs
 
-import "sync"
-
 type FunctionCallContext struct {
 	env  *Environment
 	args []Value
@@ -46,30 +44,19 @@ type FunctionEntry struct {
 	data  interface{}
 }
 
-// from http://stackoverflow.com/questions/37157379/passing-function-pointer-to-the-c-code-using-cgo
-var mu sync.Mutex
-var index int
-var fns = make(map[int]*FunctionEntry)
-
-func register(fn *FunctionEntry) int {
-	mu.Lock()
-	defer mu.Unlock()
-	index++
-	for fns[index] != nil {
-		index++
-	}
-	fns[index] = fn
-	return index
+type functionRegistry struct {
+	reg Registry
 }
 
-func lookup(i int) *FunctionEntry {
-	mu.Lock()
-	defer mu.Unlock()
-	return fns[i]
+func (fr *functionRegistry) Register(fn *FunctionEntry) int64 {
+	return fr.reg.Register(fn)
 }
 
-func unregister(i int) {
-	mu.Lock()
-	defer mu.Unlock()
-	delete(fns, i)
+func (fr *functionRegistry) Lookup(idx int64) *FunctionEntry {
+	obj := fr.reg.Lookup(idx)
+	return obj.(*FunctionEntry)
+}
+
+var funcReg = functionRegistry{
+	reg: NewRegistry(),
 }

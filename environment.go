@@ -136,7 +136,7 @@ func (e *Environment) Float(i float64) Float {
 
 func (e *Environment) MakeFunction(f FunctionType, arity int, doc string, data interface{}) Function {
 	cArity := C.int(arity)
-	idx := register(&FunctionEntry{
+	idx := funcReg.Register(&FunctionEntry{
 		f:     f,
 		arity: arity,
 		doc:   doc,

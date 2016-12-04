@@ -108,15 +108,28 @@ func (e *Environment) Bool(b bool) Value {
 	return stdlib.Nil
 }
 
-func (e *Environment) GoInt(v Value) int {
-	return int(C.ExtractInteger(e.env, v.getVal()))
+func (e *Environment) GoInt(v Value) int64 {
+	return int64(C.ExtractInteger(e.env, v.getVal()))
 }
 
-func (e *Environment) Int(i int) Int {
+func (e *Environment) Int(i int64) Int {
 	return intValue{
 		baseValue{
 			env: e,
 			val: C.MakeInteger(e.env, C.intmax_t(i)),
+		},
+	}
+}
+
+func (e *Environment) GoFloat(v Value) float64 {
+	return float64(C.ExtractFloat(e.env, v.getVal()))
+}
+
+func (e *Environment) Float(i float64) Float {
+	return floatValue{
+		baseValue{
+			env: e,
+			val: C.MakeFloat(e.env, C.double(i)),
 		},
 	}
 }

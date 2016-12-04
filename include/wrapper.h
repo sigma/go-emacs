@@ -75,6 +75,14 @@ static inline emacs_value MakeInteger(emacs_env *env, intmax_t value) {
   return env->make_integer(env, value);
 }
 
+static inline double ExtractFloat(emacs_env *env, emacs_value value) {
+  return env->extract_float(env, value);
+}
+
+static inline emacs_value MakeFloat(emacs_env *env, double value) {
+  return env->make_float(env, value);
+}
+
 static inline bool Eq(emacs_env *env, emacs_value a, emacs_value b) {
   return env->eq(env, a, b);
 }

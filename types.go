@@ -57,6 +57,14 @@ type intValue struct {
 	baseValue
 }
 
+type Float interface {
+	Value
+}
+
+type floatValue struct {
+	baseValue
+}
+
 type Callable interface {
 	Value
 	Callable() bool

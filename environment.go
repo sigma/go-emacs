@@ -27,7 +27,7 @@ import (
 )
 
 type Environment interface {
-	StdLib() *StdLib
+	StdLib() StdLib
 	MakeGlobalRef(Value) Value
 	FreeGlobalRef(Value)
 	NonLocalExitCheck() error
@@ -49,7 +49,7 @@ type Environment interface {
 type emacsEnv struct {
 	// FIXME: for some reason, struct_emacs_env doesn't compile
 	env    *C.struct_emacs_env_25
-	stdlib *StdLib
+	stdlib *emacsLib
 }
 
 func (e *emacsEnv) intern(s string) C.emacs_value {
@@ -58,7 +58,7 @@ func (e *emacsEnv) intern(s string) C.emacs_value {
 	return C.Intern(e.env, str)
 }
 
-func newStdLib(e *emacsEnv) *StdLib {
+func newStdLib(e *emacsEnv) *emacsLib {
 	n := baseValue{
 		env: e,
 		val: e.intern("nil"),
@@ -69,17 +69,17 @@ func newStdLib(e *emacsEnv) *StdLib {
 		val: e.intern("t"),
 	}
 
-	return &StdLib{
+	return &emacsLib{
 		env: e,
 
 		fboundpFunc: e.intern("fboundp"),
 
-		Nil: n,
-		T:   t,
+		nilValue: n,
+		tValue:   t,
 	}
 }
 
-func (e *emacsEnv) StdLib() *StdLib {
+func (e *emacsEnv) StdLib() StdLib {
 	if e.stdlib == nil {
 		e.stdlib = newStdLib(e)
 	}
@@ -144,9 +144,9 @@ func (e *emacsEnv) GoBool(v Value) bool {
 func (e *emacsEnv) Bool(b bool) Value {
 	stdlib := e.StdLib()
 	if b {
-		return stdlib.T
+		return stdlib.T()
 	}
-	return stdlib.Nil
+	return stdlib.Nil()
 }
 
 func (e *emacsEnv) GoInt(v Value) int64 {

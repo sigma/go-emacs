@@ -26,20 +26,42 @@ import (
 	"unsafe"
 )
 
-type StdLib struct {
+type StdLib interface {
+	Funcall(f Callable, args ...Value) (Value, error)
+	Eq(a, b Value) bool
+	Equal(a, b Value) bool
+	Intern(s string) Symbol
+	Fset(sym Symbol, f Function)
+	Fboundp(sym Symbol) bool
+	Provide(sym Symbol)
+	Message(s string)
+
+	Nil() Value
+	T() Value
+}
+
+type emacsLib struct {
 	env *emacsEnv
 
 	// fboundp cannot be implemented with Intern/Funcall since it's used in
 	// Funcall
 	fboundpFunc C.emacs_value
 
-	Nil Value
-	T   Value
+	nilValue Value
+	tValue   Value
 }
 
-func (stdlib *StdLib) Funcall(f Callable, args ...Value) (Value, error) {
+func (stdlib *emacsLib) Nil() Value {
+	return stdlib.nilValue
+}
+
+func (stdlib *emacsLib) T() Value {
+	return stdlib.tValue
+}
+
+func (stdlib *emacsLib) Funcall(f Callable, args ...Value) (Value, error) {
 	if !f.Callable() {
-		return stdlib.Nil, fmt.Errorf("symbol is not a function")
+		return stdlib.Nil(), fmt.Errorf("symbol is not a function")
 	}
 	cargs := make([]C.emacs_value, len(args))
 	for i := 0; i < len(args); i++ {
@@ -51,17 +73,17 @@ func (stdlib *StdLib) Funcall(f Callable, args ...Value) (Value, error) {
 	}, nil
 }
 
-func (stdlib *StdLib) Eq(a, b Value) bool {
+func (stdlib *emacsLib) Eq(a, b Value) bool {
 	return bool(C.Eq(stdlib.env.env, a.getVal(), b.getVal()))
 }
 
-func (stdlib *StdLib) Equal(a, b Value) bool {
+func (stdlib *emacsLib) Equal(a, b Value) bool {
 	equal := stdlib.Intern("equal")
 	res, _ := stdlib.Funcall(equal, a, b)
-	return !stdlib.Eq(res, stdlib.Nil)
+	return !stdlib.Eq(res, stdlib.Nil())
 }
 
-func (stdlib *StdLib) Intern(s string) Symbol {
+func (stdlib *emacsLib) Intern(s string) Symbol {
 	valStr := C.CString(s)
 	defer C.free(unsafe.Pointer(valStr))
 
@@ -73,12 +95,12 @@ func (stdlib *StdLib) Intern(s string) Symbol {
 	}
 }
 
-func (stdlib *StdLib) Fset(sym Symbol, f Function) {
+func (stdlib *emacsLib) Fset(sym Symbol, f Function) {
 	fset := stdlib.Intern("fset")
 	stdlib.Funcall(fset, sym, f)
 }
 
-func (stdlib *StdLib) Fboundp(sym Symbol) bool {
+func (stdlib *emacsLib) Fboundp(sym Symbol) bool {
 	symbol := sym.getVal()
 	val := baseValue{
 		env: stdlib.env,
@@ -87,12 +109,14 @@ func (stdlib *StdLib) Fboundp(sym Symbol) bool {
 	return stdlib.env.GoBool(val)
 }
 
-func (stdlib *StdLib) Provide(sym Symbol) {
+func (stdlib *emacsLib) Provide(sym Symbol) {
 	provide := stdlib.Intern("provide")
 	stdlib.Funcall(provide, sym)
 }
 
-func (stdlib *StdLib) Message(s string) {
+func (stdlib *emacsLib) Message(s string) {
 	message := stdlib.Intern("message")
 	stdlib.Funcall(message, stdlib.env.String(s))
 }
+
+var _ StdLib = (*emacsLib)(nil)

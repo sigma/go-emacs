@@ -33,8 +33,8 @@ func Register(init InitFunction) {
 	initFuncs = append(initFuncs, init)
 }
 
-//export emacs_module_init
-func emacs_module_init(e *C.struct_emacs_runtime) C.int {
+//export emacsModuleInit
+func emacsModuleInit(e *C.struct_emacs_runtime) C.int {
 	env := &emacsEnv{
 		env: C.GetEnvironment(e),
 	}
@@ -45,8 +45,8 @@ func emacs_module_init(e *C.struct_emacs_runtime) C.int {
 	return 0
 }
 
-//export emacs_call_function
-func emacs_call_function(
+//export emacsCallFunction
+func emacsCallFunction(
 	//FIXME: emacs_env_25 shouldn't be used
 	env *C.struct_emacs_env_25, nargs C.ptrdiff_t,
 	args *C.emacs_value, idx C.ptrdiff_t) C.emacs_value {
@@ -75,8 +75,8 @@ func emacs_call_function(
 	).getVal()
 }
 
-//export emacs_finalize_function
-func emacs_finalize_function(idx C.ptrdiff_t) {
+//export emacsFinalizeFunction
+func emacsFinalizeFunction(idx C.ptrdiff_t) {
 	index := int64(idx)
 	defer ptrReg.Unregister(index)
 

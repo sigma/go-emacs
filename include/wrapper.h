@@ -21,15 +21,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdlib.h>
 #include "emacs-module.h"
 
-extern emacs_value emacs_function_wrapper(emacs_env* env, ptrdiff_t nargs,
-                                          emacs_value args[], void* data);
+extern int emacsModuleInit (struct emacs_runtime *ert);
 
-extern emacs_value emacs_call_function (emacs_env* env, ptrdiff_t nargs,
+extern emacs_value emacsFunctionWrapper(emacs_env* env, ptrdiff_t nargs,
+                                        emacs_value args[], void* data);
+
+extern emacs_value emacsCallFunction (emacs_env* env, ptrdiff_t nargs,
                                         emacs_value *args, ptrdiff_t idx);
 
-extern void emacs_pointer_wrapper(void* ptr);
+extern void emacsPointerWrapper(void* ptr);
 
-extern void emacs_finalize_function (ptrdiff_t idx);
+extern void emacsFinalizeFunction (ptrdiff_t idx);
 
 static inline emacs_env * GetEnvironment(struct emacs_runtime *ert) {
   return ert->get_environment(ert);
@@ -94,7 +96,7 @@ static inline bool Eq(emacs_env *env, emacs_value a, emacs_value b) {
 static inline emacs_value MakeFunction(emacs_env *env, int min_arity, int max_arity,
                                        const char* documentation, ptrdiff_t idx) {
   return env->make_function(env, min_arity, max_arity,
-                            &emacs_function_wrapper,
+                            &emacsFunctionWrapper,
                             documentation, (void*)idx);
 }
 
@@ -103,7 +105,7 @@ static inline enum emacs_funcall_exit NonLocalExitCheck(emacs_env *env) {
 }
 
 static inline emacs_value MakeUserPointer(emacs_env *env, ptrdiff_t idx) {
-  return env->make_user_ptr(env, &emacs_pointer_wrapper, (void*)idx);
+  return env->make_user_ptr(env, &emacsPointerWrapper, (void*)idx);
 }
 
 static inline ptrdiff_t GetUserPointer(emacs_env *env, emacs_value uptr) {

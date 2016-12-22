@@ -17,13 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "include/wrapper.h"
 
-emacs_value emacs_function_wrapper(emacs_env* env, ptrdiff_t nargs,
-                                   emacs_value args[], void* data) {
-  ptrdiff_t idx = (ptrdiff_t)data;
-  return emacs_call_function(env, nargs, args, idx);
+int emacs_module_init (struct emacs_runtime *ert) {
+  return emacsModuleInit(ert);
 }
 
-void emacs_pointer_wrapper(void* ptr) {
+emacs_value emacsFunctionWrapper(emacs_env* env, ptrdiff_t nargs,
+                                 emacs_value args[], void* data) {
+  ptrdiff_t idx = (ptrdiff_t)data;
+  return emacsCallFunction(env, nargs, args, idx);
+}
+
+void emacsPointerWrapper(void* ptr) {
   ptrdiff_t idx = (ptrdiff_t)ptr;
-  emacs_finalize_function(idx);
+  emacsFinalizeFunction(idx);
 }

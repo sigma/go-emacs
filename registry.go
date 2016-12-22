@@ -19,6 +19,7 @@ package goemacs
 
 import "sync"
 
+// Registry is a key-value store for arbitrary objects
 type Registry interface {
 	Register(interface{}) int64
 	Lookup(int64) interface{}
@@ -31,6 +32,7 @@ type registry struct {
 	objects map[int64]interface{}
 }
 
+// NewRegistry creates a new Registry instance
 func NewRegistry() Registry {
 	return &registry{
 		objects: make(map[int64]interface{}),

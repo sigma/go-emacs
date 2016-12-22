@@ -198,7 +198,7 @@ func (e *emacsEnv) MakeFunction(f FunctionType, arity int, doc string, data inte
 }
 
 func (e *emacsEnv) MakeUserPointer(obj interface{}) UserPointer {
-	val := &SimplePointerEntry{
+	val := &simplePointerEntry{
 		obj: obj,
 	}
 	idx := ptrReg.Register(val)

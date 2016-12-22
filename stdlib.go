@@ -26,6 +26,7 @@ import (
 	"unsafe"
 )
 
+// StdLib exposes high-level emacs functions
 type StdLib interface {
 	Funcall(f Callable, args ...Value) (Value, error)
 	Eq(a, b Value) bool

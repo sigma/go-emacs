@@ -25,8 +25,12 @@ import "unsafe"
 
 var initFuncs = make([]func(Environment), 0)
 
-func Register(f func(Environment)) {
-	initFuncs = append(initFuncs, f)
+// InitFunction is the type for functions to be called at module initialization
+type InitFunction func(Environment)
+
+// Register makes sure a function will be called at module initialization
+func Register(init InitFunction) {
+	initFuncs = append(initFuncs, init)
 }
 
 //export emacs_module_init

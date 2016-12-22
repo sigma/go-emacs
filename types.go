@@ -22,6 +22,7 @@ package goemacs
 */
 import "C"
 
+// Value wraps an emacs value
 type Value interface {
 	getVal() C.emacs_value
 }
@@ -35,6 +36,7 @@ func (v baseValue) getVal() C.emacs_value {
 	return v.val
 }
 
+// String wraps an emacs string
 type String interface {
 	Value
 	String() string
@@ -49,6 +51,7 @@ func (s stringValue) String() string {
 	return res
 }
 
+// Int wraps an emacs integer
 type Int interface {
 	Value
 }
@@ -57,6 +60,7 @@ type intValue struct {
 	baseValue
 }
 
+// Float wraps an emacs float number
 type Float interface {
 	Value
 }
@@ -65,11 +69,13 @@ type floatValue struct {
 	baseValue
 }
 
+// Callable wraps a callable object: function or symbol
 type Callable interface {
 	Value
 	Callable() bool
 }
 
+// Symbol wraps an emacs symbol
 type Symbol interface {
 	Callable
 }
@@ -82,6 +88,7 @@ func (s symbolValue) Callable() bool {
 	return s.env.StdLib().Fboundp(s)
 }
 
+// Function wraps a function object
 type Function interface {
 	Callable
 }
@@ -94,6 +101,7 @@ func (f functionValue) Callable() bool {
 	return true
 }
 
+// UserPointer represents a module-created pointer
 type UserPointer interface {
 	Value
 }
@@ -102,6 +110,7 @@ type userPointerValue struct {
 	baseValue
 }
 
+// Vector wraps an emacs vector
 type Vector interface {
 	Value
 	Size() int

@@ -17,27 +17,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 package goemacs
 
-type PointerEntry interface {
+type pointerEntry interface {
 	Finalize()
 }
 
-type SimplePointerEntry struct {
+type simplePointerEntry struct {
 	obj interface{}
 }
 
-func (ptr *SimplePointerEntry) Finalize() {}
+func (ptr *simplePointerEntry) Finalize() {}
 
 type pointerRegistry struct {
 	reg Registry
 }
 
-func (pr *pointerRegistry) Register(entry PointerEntry) int64 {
+func (pr *pointerRegistry) Register(entry pointerEntry) int64 {
 	return pr.reg.Register(entry)
 }
 
-func (pr *pointerRegistry) Lookup(idx int64) PointerEntry {
+func (pr *pointerRegistry) Lookup(idx int64) pointerEntry {
 	obj := pr.reg.Lookup(idx)
-	return obj.(PointerEntry)
+	return obj.(pointerEntry)
 }
 
 func (pr *pointerRegistry) Unregister(idx int64) {

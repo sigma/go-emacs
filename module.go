@@ -63,7 +63,7 @@ func emacs_call_function(
 	}
 	entry := funcReg.Lookup(int64(idx))
 	return entry.f(
-		&FunctionCallContext{
+		&emacsCallContext{
 			e,
 			arguments,
 			entry.data,

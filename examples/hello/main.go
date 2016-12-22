@@ -62,8 +62,9 @@ func initModule(env emacs.Environment) {
 	log.Info("module initialization complete")
 }
 
-func Hello(ctx *emacs.FunctionCallContext) emacs.Value {
-	stdlib := ctx.StdLib()
+// Hello is a sample function that calls "message"
+func Hello(ctx emacs.FunctionCallContext) emacs.Value {
+	stdlib := ctx.Environment().StdLib()
 
 	// we're guaranteed to be called with 1 argument
 	s, err := ctx.StringArg(0)

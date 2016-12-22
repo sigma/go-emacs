@@ -17,25 +17,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 package goemacs
 
-type FunctionCallContext struct {
+type FunctionCallContext interface {
+	Environment() Environment
+	StringArg(int) (string, error)
+}
+
+type emacsCallContext struct {
 	env  Environment
 	args []Value
 	data interface{}
 }
 
-func (ctx *FunctionCallContext) Environment() Environment {
+func (ctx *emacsCallContext) Environment() Environment {
 	return ctx.env
 }
 
-func (ctx *FunctionCallContext) StdLib() *StdLib {
-	return ctx.env.StdLib()
-}
-
-func (ctx *FunctionCallContext) StringArg(idx int) (string, error) {
+func (ctx *emacsCallContext) StringArg(idx int) (string, error) {
 	return ctx.env.GoString(ctx.args[idx])
 }
 
-type FunctionType func(*FunctionCallContext) Value
+type FunctionType func(FunctionCallContext) Value
 
 type FunctionEntry struct {
 	f     FunctionType

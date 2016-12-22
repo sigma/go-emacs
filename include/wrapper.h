@@ -114,4 +114,16 @@ static inline void SetUserPointer(emacs_env *env, emacs_value uptr, ptrdiff_t id
   env->set_user_ptr(env, uptr, (void*)idx);
 }
 
+static inline emacs_value VecGet(emacs_env *env, emacs_value vec, ptrdiff_t idx) {
+  return env->vec_get(env, vec, idx);
+}
+
+static inline void VecSet(emacs_env *env, emacs_value vec, ptrdiff_t idx, emacs_value val) {
+  env->vec_set(env, vec, idx, val);
+}
+
+static inline ptrdiff_t VecSize(emacs_env *env, emacs_value vec) {
+  return env->vec_size(env, vec);
+}
+
 #endif /* GOEMACS_WRAPPER_H */

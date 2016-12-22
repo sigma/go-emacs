@@ -101,3 +101,29 @@ type UserPointer interface {
 type userPointerValue struct {
 	baseValue
 }
+
+type Vector interface {
+	Value
+	Size() int
+	Get(int) Value
+	Set(int, Value)
+}
+
+type vectorValue struct {
+	baseValue
+}
+
+func (v vectorValue) Size() int {
+	size := C.VecSize(v.env.env, v.val)
+	return int(size)
+}
+
+func (v vectorValue) Set(idx int, item Value) {
+	C.VecSet(v.env.env, v.val, C.ptrdiff_t(idx), item.getVal())
+}
+
+func (v vectorValue) Get(idx int) Value {
+	return baseValue{
+		val: C.VecGet(v.env.env, v.val, C.ptrdiff_t(idx)),
+	}
+}

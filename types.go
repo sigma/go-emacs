@@ -28,7 +28,7 @@ type Value interface {
 
 type baseValue struct {
 	val C.emacs_value
-	env *Environment
+	env Environment
 }
 
 func (v baseValue) getVal() C.emacs_value {
@@ -114,16 +114,13 @@ type vectorValue struct {
 }
 
 func (v vectorValue) Size() int {
-	size := C.VecSize(v.env.env, v.val)
-	return int(size)
+	return v.env.VecSize(v)
 }
 
 func (v vectorValue) Set(idx int, item Value) {
-	C.VecSet(v.env.env, v.val, C.ptrdiff_t(idx), item.getVal())
+	v.env.VecSet(v, idx, item)
 }
 
 func (v vectorValue) Get(idx int) Value {
-	return baseValue{
-		val: C.VecGet(v.env.env, v.val, C.ptrdiff_t(idx)),
-	}
+	return v.env.VecGet(v, idx)
 }

@@ -31,7 +31,7 @@ func init() {
 	emacs.Register(initModule)
 }
 
-func initModule(env *emacs.Environment) {
+func initModule(env emacs.Environment) {
 	log.Info("module initialization started")
 
 	stdlib := env.StdLib()

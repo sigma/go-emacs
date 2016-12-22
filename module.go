@@ -23,15 +23,15 @@ package goemacs
 import "C"
 import "unsafe"
 
-var initFuncs = make([]func(*Environment), 0)
+var initFuncs = make([]func(Environment), 0)
 
-func Register(f func(*Environment)) {
+func Register(f func(Environment)) {
 	initFuncs = append(initFuncs, f)
 }
 
 //export emacs_module_init
 func emacs_module_init(e *C.struct_emacs_runtime) C.int {
-	env := &Environment{
+	env := &emacsEnv{
 		env: C.GetEnvironment(e),
 	}
 
@@ -47,7 +47,7 @@ func emacs_call_function(
 	env *C.struct_emacs_env_25, nargs C.ptrdiff_t,
 	args *C.emacs_value, idx C.ptrdiff_t) C.emacs_value {
 
-	e := &Environment{
+	e := &emacsEnv{
 		env: env,
 	}
 

@@ -27,7 +27,7 @@ import (
 )
 
 type StdLib struct {
-	env *Environment
+	env *emacsEnv
 
 	// fboundp cannot be implemented with Intern/Funcall since it's used in
 	// Funcall
@@ -35,27 +35,6 @@ type StdLib struct {
 
 	Nil Value
 	T   Value
-}
-
-func newStdLib(e *Environment) *StdLib {
-	n := baseValue{
-		env: e,
-		val: e.intern("nil"),
-	}
-
-	t := baseValue{
-		env: e,
-		val: e.intern("t"),
-	}
-
-	return &StdLib{
-		env: e,
-
-		fboundpFunc: e.intern("fboundp"),
-
-		Nil: n,
-		T:   t,
-	}
 }
 
 func (stdlib *StdLib) Funcall(f Callable, args ...Value) (Value, error) {

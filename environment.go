@@ -26,37 +26,78 @@ import (
 	"unsafe"
 )
 
-type Environment struct {
+type Environment interface {
+	StdLib() *StdLib
+	MakeGlobalRef(Value) Value
+	FreeGlobalRef(Value)
+	NonLocalExitCheck() error
+	GoString(Value) (string, error)
+	String(string) String
+	GoBool(Value) bool
+	Bool(bool) Value
+	GoInt(Value) int64
+	Int(int64) Int
+	GoFloat(Value) float64
+	Float(float64) Float
+	MakeFunction(FunctionType, int, string, interface{}) Function
+	MakeUserPointer(interface{}) UserPointer
+	VecSize(Vector) int
+	VecSet(Vector, int, Value)
+	VecGet(Vector, int) Value
+}
+
+type emacsEnv struct {
 	// FIXME: for some reason, struct_emacs_env doesn't compile
 	env    *C.struct_emacs_env_25
 	stdlib *StdLib
 }
 
-func (e *Environment) intern(s string) C.emacs_value {
+func (e *emacsEnv) intern(s string) C.emacs_value {
 	str := C.CString(s)
 	defer C.free(unsafe.Pointer(str))
 	return C.Intern(e.env, str)
 }
 
-func (e *Environment) StdLib() *StdLib {
+func newStdLib(e *emacsEnv) *StdLib {
+	n := baseValue{
+		env: e,
+		val: e.intern("nil"),
+	}
+
+	t := baseValue{
+		env: e,
+		val: e.intern("t"),
+	}
+
+	return &StdLib{
+		env: e,
+
+		fboundpFunc: e.intern("fboundp"),
+
+		Nil: n,
+		T:   t,
+	}
+}
+
+func (e *emacsEnv) StdLib() *StdLib {
 	if e.stdlib == nil {
 		e.stdlib = newStdLib(e)
 	}
 	return e.stdlib
 }
 
-func (e *Environment) MakeGlobalRef(ref Value) Value {
+func (e *emacsEnv) MakeGlobalRef(ref Value) Value {
 	return baseValue{
 		env: e,
 		val: C.MakeGlobalRef(e.env, ref.getVal()),
 	}
 }
 
-func (e *Environment) FreeGlobalRef(ref Value) {
+func (e *emacsEnv) FreeGlobalRef(ref Value) {
 	C.FreeGlobalRef(e.env, ref.getVal())
 }
 
-func (e *Environment) NonLocalExitCheck() error {
+func (e *emacsEnv) NonLocalExitCheck() error {
 	code := C.NonLocalExitCheck(e.env)
 	if code == C.emacs_funcall_exit_return {
 		return nil
@@ -71,7 +112,7 @@ func (e *Environment) NonLocalExitCheck() error {
 	}
 }
 
-func (e *Environment) GoString(v Value) (string, error) {
+func (e *emacsEnv) GoString(v Value) (string, error) {
 	size := C.StringSize(e.env, v.getVal())
 	buffer := C.CopyString(e.env, v.getVal(), size)
 	defer C.free(unsafe.Pointer(buffer))
@@ -84,7 +125,7 @@ func (e *Environment) GoString(v Value) (string, error) {
 	return s, nil
 }
 
-func (e *Environment) String(s string) String {
+func (e *emacsEnv) String(s string) String {
 	valStr := C.CString(s)
 	defer C.free(unsafe.Pointer(valStr))
 
@@ -96,11 +137,11 @@ func (e *Environment) String(s string) String {
 	}
 }
 
-func (e *Environment) GoBool(v Value) bool {
+func (e *emacsEnv) GoBool(v Value) bool {
 	return bool(C.IsNotNil(e.env, v.getVal()))
 }
 
-func (e *Environment) Bool(b bool) Value {
+func (e *emacsEnv) Bool(b bool) Value {
 	stdlib := e.StdLib()
 	if b {
 		return stdlib.T
@@ -108,11 +149,11 @@ func (e *Environment) Bool(b bool) Value {
 	return stdlib.Nil
 }
 
-func (e *Environment) GoInt(v Value) int64 {
+func (e *emacsEnv) GoInt(v Value) int64 {
 	return int64(C.ExtractInteger(e.env, v.getVal()))
 }
 
-func (e *Environment) Int(i int64) Int {
+func (e *emacsEnv) Int(i int64) Int {
 	return intValue{
 		baseValue{
 			env: e,
@@ -121,11 +162,11 @@ func (e *Environment) Int(i int64) Int {
 	}
 }
 
-func (e *Environment) GoFloat(v Value) float64 {
+func (e *emacsEnv) GoFloat(v Value) float64 {
 	return float64(C.ExtractFloat(e.env, v.getVal()))
 }
 
-func (e *Environment) Float(i float64) Float {
+func (e *emacsEnv) Float(i float64) Float {
 	return floatValue{
 		baseValue{
 			env: e,
@@ -134,7 +175,7 @@ func (e *Environment) Float(i float64) Float {
 	}
 }
 
-func (e *Environment) MakeFunction(f FunctionType, arity int, doc string, data interface{}) Function {
+func (e *emacsEnv) MakeFunction(f FunctionType, arity int, doc string, data interface{}) Function {
 	cArity := C.int(arity)
 	idx := funcReg.Register(&FunctionEntry{
 		f:     f,
@@ -155,7 +196,7 @@ func (e *Environment) MakeFunction(f FunctionType, arity int, doc string, data i
 	}
 }
 
-func (e *Environment) MakeUserPointer(obj interface{}) UserPointer {
+func (e *emacsEnv) MakeUserPointer(obj interface{}) UserPointer {
 	val := &SimplePointerEntry{
 		obj: obj,
 	}
@@ -168,3 +209,19 @@ func (e *Environment) MakeUserPointer(obj interface{}) UserPointer {
 		},
 	}
 }
+
+func (e *emacsEnv) VecSize(vec Vector) int {
+	return int(C.VecSize(e.env, vec.getVal()))
+}
+
+func (e *emacsEnv) VecSet(vec Vector, idx int, val Value) {
+	C.VecSet(e.env, vec.getVal(), C.ptrdiff_t(idx), val.getVal())
+}
+
+func (e *emacsEnv) VecGet(vec Vector, idx int) Value {
+	return baseValue{
+		val: C.VecGet(e.env, vec.getVal(), C.ptrdiff_t(idx)),
+	}
+}
+
+var _ Environment = (*emacsEnv)(nil)

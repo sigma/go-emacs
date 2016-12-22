@@ -18,12 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 package goemacs
 
 type FunctionCallContext struct {
-	env  *Environment
+	env  Environment
 	args []Value
 	data interface{}
 }
 
-func (ctx *FunctionCallContext) Environment() *Environment {
+func (ctx *FunctionCallContext) Environment() Environment {
 	return ctx.env
 }
 

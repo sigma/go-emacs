@@ -26,6 +26,7 @@ import (
 	"unsafe"
 )
 
+// Environment provides primitives for emacs modules
 type Environment interface {
 	StdLib() StdLib
 	MakeGlobalRef(Value) Value
@@ -177,7 +178,7 @@ func (e *emacsEnv) Float(i float64) Float {
 
 func (e *emacsEnv) MakeFunction(f FunctionType, arity int, doc string, data interface{}) Function {
 	cArity := C.int(arity)
-	idx := funcReg.Register(&FunctionEntry{
+	idx := funcReg.Register(&functionEntry{
 		f:     f,
 		arity: arity,
 		doc:   doc,

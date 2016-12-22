@@ -17,8 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 package goemacs
 
+// FunctionCallContext is the one argument module functions will receive
 type FunctionCallContext interface {
 	Environment() Environment
+	NumberArgs() int
 	StringArg(int) (string, error)
 }
 
@@ -26,6 +28,10 @@ type emacsCallContext struct {
 	env  Environment
 	args []Value
 	data interface{}
+}
+
+func (ctx *emacsCallContext) NumberArgs() int {
+	return len(ctx.args)
 }
 
 func (ctx *emacsCallContext) Environment() Environment {
@@ -36,9 +42,10 @@ func (ctx *emacsCallContext) StringArg(idx int) (string, error) {
 	return ctx.env.GoString(ctx.args[idx])
 }
 
+// FunctionType is the type for module functions
 type FunctionType func(FunctionCallContext) Value
 
-type FunctionEntry struct {
+type functionEntry struct {
 	f     FunctionType
 	arity int
 	doc   string
@@ -49,13 +56,13 @@ type functionRegistry struct {
 	reg Registry
 }
 
-func (fr *functionRegistry) Register(fn *FunctionEntry) int64 {
+func (fr *functionRegistry) Register(fn *functionEntry) int64 {
 	return fr.reg.Register(fn)
 }
 
-func (fr *functionRegistry) Lookup(idx int64) *FunctionEntry {
+func (fr *functionRegistry) Lookup(idx int64) *functionEntry {
 	obj := fr.reg.Lookup(idx)
-	return obj.(*FunctionEntry)
+	return obj.(*functionEntry)
 }
 
 var funcReg = functionRegistry{

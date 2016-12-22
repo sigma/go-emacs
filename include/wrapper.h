@@ -104,6 +104,10 @@ static inline enum emacs_funcall_exit NonLocalExitCheck(emacs_env *env) {
   return env->non_local_exit_check(env);
 }
 
+static inline void NonLocalExitClear(emacs_env *env) {
+  env->non_local_exit_clear(env);
+}
+
 static inline emacs_value MakeUserPointer(emacs_env *env, ptrdiff_t idx) {
   return env->make_user_ptr(env, &emacsPointerWrapper, (void*)idx);
 }

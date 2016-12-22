@@ -73,8 +73,6 @@ func newStdLib(e *emacsEnv) *emacsLib {
 	return &emacsLib{
 		env: e,
 
-		fboundpFunc: e.intern("fboundp"),
-
 		nilValue: n,
 		tValue:   t,
 	}
@@ -100,6 +98,7 @@ func (e *emacsEnv) FreeGlobalRef(ref Value) {
 
 func (e *emacsEnv) NonLocalExitCheck() error {
 	code := C.NonLocalExitCheck(e.env)
+	defer C.NonLocalExitClear(e.env)
 	if code == C.emacs_funcall_exit_return {
 		return nil
 	}

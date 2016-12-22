@@ -44,10 +44,6 @@ type StdLib interface {
 type emacsLib struct {
 	env *emacsEnv
 
-	// fboundp cannot be implemented with Intern/Funcall since it's used in
-	// Funcall
-	fboundpFunc C.emacs_value
-
 	nilValue Value
 	tValue   Value
 }
@@ -61,16 +57,18 @@ func (stdlib *emacsLib) T() Value {
 }
 
 func (stdlib *emacsLib) Funcall(f Callable, args ...Value) (Value, error) {
-	if !f.Callable() {
-		return stdlib.Nil(), fmt.Errorf("symbol is not a function")
-	}
 	cargs := make([]C.emacs_value, len(args))
 	for i := 0; i < len(args); i++ {
 		cargs[i] = args[i].getVal()
 	}
+	ret := C.Funcall(stdlib.env.env, f.getVal(), C.int(len(args)), &cargs[0])
+
+	if stdlib.env.NonLocalExitCheck() != nil {
+		return stdlib.Nil(), fmt.Errorf("symbol is not a function")
+	}
 	return baseValue{
 		env: stdlib.env,
-		val: C.Funcall(stdlib.env.env, f.getVal(), C.int(len(args)), &cargs[0]),
+		val: ret,
 	}, nil
 }
 
@@ -102,12 +100,9 @@ func (stdlib *emacsLib) Fset(sym Symbol, f Function) {
 }
 
 func (stdlib *emacsLib) Fboundp(sym Symbol) bool {
-	symbol := sym.getVal()
-	val := baseValue{
-		env: stdlib.env,
-		val: C.Funcall(stdlib.env.env, stdlib.fboundpFunc, 1, &symbol),
-	}
-	return stdlib.env.GoBool(val)
+	fboundp := stdlib.Intern("fboundp")
+	res, _ := stdlib.Funcall(fboundp, sym)
+	return stdlib.env.GoBool(res)
 }
 
 func (stdlib *emacsLib) Provide(sym Symbol) {

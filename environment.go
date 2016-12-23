@@ -59,6 +59,10 @@ func (e *emacsEnv) intern(s string) C.emacs_value {
 	return C.Intern(e.env, str)
 }
 
+func (e *emacsEnv) eq(a, b C.emacs_value) bool {
+	return bool(C.Eq(e.env, a, b))
+}
+
 func newStdLib(e *emacsEnv) *emacsLib {
 	n := baseValue{
 		env: e,

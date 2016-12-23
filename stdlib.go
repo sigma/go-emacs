@@ -21,10 +21,7 @@ package goemacs
 #include "include/wrapper.h"
 */
 import "C"
-import (
-	"fmt"
-	"unsafe"
-)
+import "fmt"
 
 // StdLib exposes high-level emacs functions
 type StdLib interface {
@@ -73,7 +70,7 @@ func (stdlib *emacsLib) Funcall(f Callable, args ...Value) (Value, error) {
 }
 
 func (stdlib *emacsLib) Eq(a, b Value) bool {
-	return bool(C.Eq(stdlib.env.env, a.getVal(), b.getVal()))
+	return stdlib.env.eq(a.getVal(), b.getVal())
 }
 
 func (stdlib *emacsLib) Equal(a, b Value) bool {
@@ -83,13 +80,10 @@ func (stdlib *emacsLib) Equal(a, b Value) bool {
 }
 
 func (stdlib *emacsLib) Intern(s string) Symbol {
-	valStr := C.CString(s)
-	defer C.free(unsafe.Pointer(valStr))
-
 	return symbolValue{
 		baseValue: baseValue{
 			env: stdlib.env,
-			val: C.Intern(stdlib.env.env, valStr),
+			val: stdlib.env.intern(s),
 		},
 	}
 }

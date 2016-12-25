@@ -42,6 +42,7 @@ type Environment interface {
 	Float(float64) Float
 	MakeFunction(FunctionType, int, string, interface{}) Function
 	MakeUserPointer(interface{}) UserPointer
+	ResolveUserPointer(UserPointer) interface{}
 	VecSize(Vector) int
 	VecSet(Vector, int, Value)
 	VecGet(Vector, int) Value
@@ -212,6 +213,11 @@ func (e *emacsEnv) MakeUserPointer(obj interface{}) UserPointer {
 			val: C.MakeUserPointer(e.env, C.ptrdiff_t(idx)),
 		},
 	}
+}
+
+func (e *emacsEnv) ResolveUserPointer(ptr UserPointer) interface{} {
+	val := ptr.getVal()
+	return ptrReg.Lookup(int64(C.GetUserPointer(e.env, val))).underlyingObject()
 }
 
 func (e *emacsEnv) VecSize(vec Vector) int {

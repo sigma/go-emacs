@@ -18,11 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 package goemacs
 
 type pointerEntry interface {
+	underlyingObject() interface{}
 	Finalize()
 }
 
 type simplePointerEntry struct {
 	obj interface{}
+}
+
+func (p simplePointerEntry) underlyingObject() interface{} {
+	return p.obj
 }
 
 func (ptr *simplePointerEntry) Finalize() {}
@@ -32,12 +37,14 @@ type pointerRegistry struct {
 }
 
 func (pr *pointerRegistry) Register(entry pointerEntry) int64 {
-	return pr.reg.Register(entry)
+	idx := pr.reg.Register(entry)
+	return idx
 }
 
 func (pr *pointerRegistry) Lookup(idx int64) pointerEntry {
 	obj := pr.reg.Lookup(idx)
-	return obj.(pointerEntry)
+	res := obj.(pointerEntry)
+	return res
 }
 
 func (pr *pointerRegistry) Unregister(idx int64) {

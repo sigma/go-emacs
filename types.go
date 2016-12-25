@@ -25,6 +25,14 @@ import "C"
 // Value wraps an emacs value
 type Value interface {
 	getVal() C.emacs_value
+	AsString() String
+	AsInt() Int
+	AsFloat() Float
+	AsSymbol() Symbol
+	AsFunction() Function
+	AsVector() Vector
+	AsList() List
+	AsUserPointer() UserPointer
 }
 
 type baseValue struct {
@@ -35,6 +43,15 @@ type baseValue struct {
 func (v baseValue) getVal() C.emacs_value {
 	return v.val
 }
+
+func (v baseValue) AsString() String           { return stringValue{v} }
+func (v baseValue) AsInt() Int                 { return intValue{v} }
+func (v baseValue) AsFloat() Float             { return floatValue{v} }
+func (v baseValue) AsSymbol() Symbol           { return symbolValue{v} }
+func (v baseValue) AsFunction() Function       { return functionValue{v} }
+func (v baseValue) AsVector() Vector           { return vectorValue{v} }
+func (v baseValue) AsList() List               { return listValue{v} }
+func (v baseValue) AsUserPointer() UserPointer { return userPointerValue{v} }
 
 // String wraps an emacs string
 type String interface {
@@ -132,4 +149,13 @@ func (v vectorValue) Set(idx int, item Value) {
 
 func (v vectorValue) Get(idx int) Value {
 	return v.env.VecGet(v, idx)
+}
+
+// List wraps an emacs list
+type List interface {
+	Value
+}
+
+type listValue struct {
+	baseValue
 }

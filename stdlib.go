@@ -33,7 +33,7 @@ type StdLib interface {
 	Fboundp(sym Symbol) bool
 	Provide(sym Symbol)
 	Message(s string)
-
+	List(items ...Value) List
 	Nil() Value
 	T() Value
 }
@@ -107,6 +107,12 @@ func (stdlib *emacsLib) Provide(sym Symbol) {
 func (stdlib *emacsLib) Message(s string) {
 	message := stdlib.Intern("message")
 	stdlib.Funcall(message, stdlib.env.String(s))
+}
+
+func (stdlib *emacsLib) List(items ...Value) List {
+	list := stdlib.Intern("list")
+	res, _ := stdlib.Funcall(list, items...)
+	return res.AsList()
 }
 
 var _ StdLib = (*emacsLib)(nil)

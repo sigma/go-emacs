@@ -21,7 +21,10 @@ package goemacs
 type FunctionCallContext interface {
 	Environment() Environment
 	NumberArgs() int
-	StringArg(int) (string, error)
+	Arg(int) Value
+	StringArg(int) String
+	UserPointerArg(int) UserPointer
+	GoStringArg(int) (string, error)
 }
 
 type emacsCallContext struct {
@@ -38,7 +41,19 @@ func (ctx *emacsCallContext) Environment() Environment {
 	return ctx.env
 }
 
-func (ctx *emacsCallContext) StringArg(idx int) (string, error) {
+func (ctx *emacsCallContext) Arg(idx int) Value {
+	return ctx.args[idx]
+}
+
+func (ctx *emacsCallContext) StringArg(idx int) String {
+	return ctx.args[idx].AsString()
+}
+
+func (ctx *emacsCallContext) UserPointerArg(idx int) UserPointer {
+	return ctx.args[idx].AsUserPointer()
+}
+
+func (ctx *emacsCallContext) GoStringArg(idx int) (string, error) {
 	return ctx.env.GoString(ctx.args[idx])
 }
 

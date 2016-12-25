@@ -67,7 +67,7 @@ func Hello(ctx emacs.FunctionCallContext) emacs.Value {
 	stdlib := ctx.Environment().StdLib()
 
 	// we're guaranteed to be called with 1 argument
-	s, err := ctx.StringArg(0)
+	s, err := ctx.GoStringArg(0)
 	if err != nil {
 		return stdlib.Nil()
 	}

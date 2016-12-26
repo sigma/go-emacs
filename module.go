@@ -66,13 +66,16 @@ func emacsCallFunction(
 		}
 	}
 	entry := funcReg.Lookup(int64(idx))
-	return entry.f(
+
+	//FIXME: don't ignore error
+	res, _ := entry.f(
 		&emacsCallContext{
 			e,
 			arguments,
 			entry.data,
 		},
-	).getVal()
+	)
+	return res.getVal()
 }
 
 //export emacsFinalizeFunction

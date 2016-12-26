@@ -47,17 +47,17 @@ func initModule(env emacs.Environment) {
 	stdlib.Provide(k8sSym)
 }
 
-func MakeClient(ctx emacs.FunctionCallContext) emacs.Value {
+func MakeClient(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	env := ctx.Environment()
 	kubeconfig, _ := ctx.GoStringArg(0)
 
 	config, _ := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	clientset, _ := kubernetes.NewForConfig(config)
 
-	return env.MakeUserPointer(clientset)
+	return env.MakeUserPointer(clientset), nil
 }
 
-func ListPods(ctx emacs.FunctionCallContext) emacs.Value {
+func ListPods(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	env := ctx.Environment()
 	rawClient := env.ResolveUserPointer(ctx.UserPointerArg(0))
 
@@ -68,7 +68,7 @@ func ListPods(ctx emacs.FunctionCallContext) emacs.Value {
 	for i := 0; i < len(pods.Items); i++ {
 		podNames[i] = env.String(pods.Items[i].Name)
 	}
-	return env.StdLib().List(podNames...)
+	return env.StdLib().List(podNames...), nil
 }
 
 func main() {}

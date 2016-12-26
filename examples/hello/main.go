@@ -63,20 +63,20 @@ func initModule(env emacs.Environment) {
 }
 
 // Hello is a sample function that calls "message"
-func Hello(ctx emacs.FunctionCallContext) emacs.Value {
+func Hello(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	stdlib := ctx.Environment().StdLib()
 
 	// we're guaranteed to be called with 1 argument
 	s, err := ctx.GoStringArg(0)
 	if err != nil {
-		return stdlib.Nil()
+		return stdlib.Nil(), err
 	}
 
 	messages := make(chan string)
 	go func() { messages <- s }()
 
 	stdlib.Message(fmt.Sprintf("Hello %s!", <-messages))
-	return stdlib.T()
+	return stdlib.T(), nil
 }
 
 func main() {}

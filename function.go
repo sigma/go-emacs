@@ -58,7 +58,7 @@ func (ctx *emacsCallContext) GoStringArg(idx int) (string, error) {
 }
 
 // FunctionType is the type for module functions
-type FunctionType func(FunctionCallContext) Value
+type FunctionType func(FunctionCallContext) (Value, error)
 
 type functionEntry struct {
 	f     FunctionType

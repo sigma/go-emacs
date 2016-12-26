@@ -77,3 +77,23 @@ func isThrow(err error) bool {
 	_, ok := err.(throw)
 	return ok
 }
+
+// Signal performs a signaled non-local exit
+func Signal(sym Symbol, val Value) (Value, error) {
+	return nil, &signalImpl{
+		nonLocalExitImpl{
+			symbol: sym,
+			value:  val,
+		},
+	}
+}
+
+// Throw performs a thrown non-local exit
+func Throw(sym Symbol, val Value) (Value, error) {
+	return nil, &throwImpl{
+		nonLocalExitImpl{
+			symbol: sym,
+			value:  val,
+		},
+	}
+}

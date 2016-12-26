@@ -87,7 +87,7 @@ func emacsCallFunction(
 		C.NonLocalExitThrow(env, t.Symbol().getVal(), t.Value().getVal())
 	} else {
 		msg := err.Error()
-		C.NonLocalExitThrow(env, e.intern("error"), e.String(msg).getVal())
+		C.NonLocalExitThrow(env, e.intern("error"), e.stringVal(msg))
 	}
 	return e.intern("nil")
 }

@@ -130,14 +130,18 @@ func (e *emacsEnv) GoString(v Value) (string, error) {
 	return s, nil
 }
 
-func (e *emacsEnv) String(s string) String {
+func (e *emacsEnv) stringVal(s string) C.emacs_value {
 	valStr := C.CString(s)
 	defer C.free(unsafe.Pointer(valStr))
 
+	return C.MakeString(e.env, valStr, C.int(len(s)))
+}
+
+func (e *emacsEnv) String(s string) String {
 	return stringValue{
 		baseValue{
 			env: e,
-			val: C.MakeString(e.env, valStr, C.int(len(s))),
+			val: e.stringVal(s),
 		},
 	}
 }

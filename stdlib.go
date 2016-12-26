@@ -110,6 +110,9 @@ func (stdlib *emacsLib) Message(s string) {
 }
 
 func (stdlib *emacsLib) List(items ...Value) List {
+	if len(items) == 0 {
+		return stdlib.Nil()
+	}
 	list := stdlib.Intern("list")
 	res, _ := stdlib.Funcall(list, items...)
 	return res.AsList()

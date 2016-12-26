@@ -51,10 +51,20 @@ func initModule(env emacs.Environment) {
 
 func MakeClient(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	env := ctx.Environment()
-	kubeconfig, _ := ctx.GoStringArg(0)
+	kubeconfig, err := ctx.GoStringArg(0)
+	if err != nil {
+		return nil, err
+	}
 
-	config, _ := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	clientset, _ := kubernetes.NewForConfig(config)
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
 
 	return env.MakeUserPointer(clientset), nil
 }

@@ -89,7 +89,7 @@ func emacsCallFunction(
 		msg := err.Error()
 		C.NonLocalExitThrow(env, e.intern("error"), e.String(msg).getVal())
 	}
-	return e.Bool(false).getVal()
+	return e.intern("nil")
 }
 
 //export emacsFinalizeFunction

@@ -22,7 +22,7 @@ import "sync"
 // Registry is a key-value store for arbitrary objects
 type Registry interface {
 	Register(interface{}) int64
-	Lookup(int64) interface{}
+	Lookup(int64) (interface{}, bool)
 	Unregister(int64)
 }
 
@@ -50,10 +50,11 @@ func (reg *registry) Register(object interface{}) int64 {
 	return reg.index
 }
 
-func (reg *registry) Lookup(i int64) interface{} {
+func (reg *registry) Lookup(i int64) (interface{}, bool) {
 	reg.mu.Lock()
 	defer reg.mu.Unlock()
-	return reg.objects[i]
+	obj, ok := reg.objects[i]
+	return obj, ok
 }
 
 func (reg *registry) Unregister(i int64) {

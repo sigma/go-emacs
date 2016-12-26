@@ -42,9 +42,11 @@ func (pr *pointerRegistry) Register(entry pointerEntry) int64 {
 }
 
 func (pr *pointerRegistry) Lookup(idx int64) pointerEntry {
-	obj := pr.reg.Lookup(idx)
-	res := obj.(pointerEntry)
-	return res
+	obj, ok := pr.reg.Lookup(idx)
+	if ok {
+		return obj.(pointerEntry)
+	}
+	return nil
 }
 
 func (pr *pointerRegistry) Unregister(idx int64) {

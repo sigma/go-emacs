@@ -76,8 +76,11 @@ func (fr *functionRegistry) Register(fn *functionEntry) int64 {
 }
 
 func (fr *functionRegistry) Lookup(idx int64) *functionEntry {
-	obj := fr.reg.Lookup(idx)
-	return obj.(*functionEntry)
+	obj, ok := fr.reg.Lookup(idx)
+	if ok {
+		return obj.(*functionEntry)
+	}
+	return nil
 }
 
 var funcReg = functionRegistry{

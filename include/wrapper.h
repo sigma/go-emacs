@@ -108,6 +108,14 @@ static inline void NonLocalExitClear(emacs_env *env) {
   env->non_local_exit_clear(env);
 }
 
+static inline void NonLocalExitSignal(emacs_env *env, emacs_value symbol, emacs_value data) {
+  env->non_local_exit_signal(env, symbol, data);
+}
+
+static inline void NonLocalExitThrow(emacs_env *env, emacs_value symbol, emacs_value data) {
+  env->non_local_exit_throw(env, symbol, data);
+}
+
 static inline emacs_value MakeUserPointer(emacs_env *env, ptrdiff_t idx) {
   return env->make_user_ptr(env, &emacsPointerWrapper, (void*)idx);
 }

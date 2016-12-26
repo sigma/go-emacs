@@ -67,3 +67,13 @@ type throwImpl struct {
 func (s *throwImpl) isThrow() bool { return true }
 
 var _ throw = (*throwImpl)(nil)
+
+func isSignal(err error) bool {
+	_, ok := err.(signal)
+	return ok
+}
+
+func isThrow(err error) bool {
+	_, ok := err.(throw)
+	return ok
+}

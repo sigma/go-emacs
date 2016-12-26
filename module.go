@@ -67,15 +67,29 @@ func emacsCallFunction(
 	}
 	entry := funcReg.Lookup(int64(idx))
 
-	//FIXME: don't ignore error
-	res, _ := entry.f(
+	res, err := entry.f(
 		&emacsCallContext{
 			e,
 			arguments,
 			entry.data,
 		},
 	)
-	return res.getVal()
+
+	if err == nil {
+		return res.getVal()
+	}
+
+	if isSignal(err) {
+		s := err.(signal)
+		C.NonLocalExitSignal(env, s.Symbol().getVal(), s.Value().getVal())
+	} else if isThrow(err) {
+		t := err.(throw)
+		C.NonLocalExitThrow(env, t.Symbol().getVal(), t.Value().getVal())
+	} else {
+		msg := err.Error()
+		C.NonLocalExitThrow(env, e.intern("error"), e.String(msg).getVal())
+	}
+	return e.Bool(false).getVal()
 }
 
 //export emacsFinalizeFunction

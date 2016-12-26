@@ -26,8 +26,8 @@ type simplePointerEntry struct {
 	obj interface{}
 }
 
-func (p simplePointerEntry) underlyingObject() interface{} {
-	return p.obj
+func (ptr *simplePointerEntry) underlyingObject() interface{} {
+	return ptr.obj
 }
 
 func (ptr *simplePointerEntry) Finalize() {}

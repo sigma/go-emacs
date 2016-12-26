@@ -76,6 +76,9 @@ func emacsCallFunction(
 	)
 
 	if err == nil {
+		if res == nil {
+			return e.intern("nil")
+		}
 		return res.getVal()
 	}
 

@@ -21,8 +21,6 @@ package main
 import "C"
 
 import (
-	"errors"
-
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -73,12 +71,12 @@ func ListPods(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	env := ctx.Environment()
 	rawClient, ok := env.ResolveUserPointer(ctx.UserPointerArg(0))
 	if !ok {
-		return nil, errors.New("user-ptr does not exist")
+		return emacs.Error("user-ptr does not exist")
 	}
 
 	client, ok := rawClient.(*kubernetes.Clientset)
 	if !ok {
-		return nil, errors.New("user-ptr is not a k8s client")
+		return emacs.Error("user-ptr is not a k8s client")
 	}
 
 	pods, err := client.Core().Pods("").List(v1.ListOptions{})

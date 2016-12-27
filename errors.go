@@ -17,6 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 package goemacs
 
+import "errors"
+
 type nonLocalExit interface {
 	error
 	Symbol() Symbol
@@ -96,4 +98,9 @@ func Throw(sym Symbol, val Value) (Value, error) {
 			value:  val,
 		},
 	}
+}
+
+// Error provides shortcut for common error pattern
+func Error(msg string) (Value, error) {
+	return nil, errors.New(msg)
 }

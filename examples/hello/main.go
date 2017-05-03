@@ -24,7 +24,7 @@ import (
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
-	emacs "github.com/sigma/goemacs"
+	"github.com/sigma/go-emacs"
 )
 
 func init() {

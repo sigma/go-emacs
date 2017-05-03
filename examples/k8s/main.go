@@ -25,7 +25,7 @@ import (
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	emacs "github.com/sigma/goemacs"
+	"github.com/sigma/go-emacs"
 )
 
 func init() {

@@ -2,7 +2,7 @@ GO ?= go
 EMACS ?= emacs
 
 k8s.so: main.go
-	$(GO) build -buildmode=c-shared -o $@ $<
+	$(GO) build -buildmode=c-shared -ldflags -s -o $@ $<
 
 clean:
 	rm -f k8s.so

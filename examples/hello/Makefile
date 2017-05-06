@@ -2,7 +2,7 @@ GO ?= go
 EMACS ?= emacs
 
 hello.so: main.go
-	$(GO) build -buildmode=c-shared -o $@ $<
+	$(GO) build -buildmode=c-shared -ldflags -s -o $@ $<
 
 clean:
 	rm -f hello.so

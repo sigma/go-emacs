@@ -10,4 +10,4 @@ clean:
 all: git.so
 
 test: git.so
-	$(EMACS) --batch --load $< --eval '(message "%s" (when (featurep (quote git)) (let ((repo (git-open (expand-file-name (concat default-directory "../.."))))) (git-ls-branches repo))))'
+	$(EMACS) --batch --load $< --eval '(message "%s" (when (featurep (quote git)) (let ((repo (git-open (expand-file-name default-directory)))) (git-ls-branches repo))))'

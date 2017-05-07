@@ -50,7 +50,7 @@ func GitOpen(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 		return nil, err
 	}
 
-	repo, err := git.OpenRepository(path)
+	repo, err := git.OpenRepositoryExtended(path, 0, "")
 	if err != nil {
 		return nil, err
 	}

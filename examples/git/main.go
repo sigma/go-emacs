@@ -70,7 +70,7 @@ func GitLsBranches(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 		return emacs.Error("user-ptr is not a git repo")
 	}
 
-	iter, err := repo.NewBranchIterator(git.BranchLocal)
+	iter, err := repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
 		return nil, err
 	}
@@ -78,10 +78,7 @@ func GitLsBranches(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	branches := make([]emacs.Value, 0)
 
 	var branchesRecorder git.BranchIteratorFunc = func(br *git.Branch, _ git.BranchType) error {
-		name, err := br.Name()
-		if err != nil {
-			return err
-		}
+		name := br.Reference.Name()
 		branches = append(branches, env.String(name))
 		return nil
 	}

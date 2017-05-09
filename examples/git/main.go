@@ -30,18 +30,9 @@ func init() {
 }
 
 func initModule(env emacs.Environment) {
-	stdlib := env.StdLib()
-
-	gitOpenFunc := env.MakeFunction(GitOpen, 1, "git-open", nil)
-	gitOpenSym := stdlib.Intern("git-open")
-	stdlib.Fset(gitOpenSym, gitOpenFunc)
-
-	gitLsBranchesFunc := env.MakeFunction(GitLsBranches, 1, "git-ls-branches", nil)
-	gitLsBranchesSym := stdlib.Intern("git-ls-branches")
-	stdlib.Fset(gitLsBranchesSym, gitLsBranchesFunc)
-
-	gitSym := stdlib.Intern("git")
-	stdlib.Provide(gitSym)
+	env.RegisterFunction("git-open", GitOpen, 1, "native git-open", nil)
+	env.RegisterFunction("git-ls-branches", GitLsBranches, 1, "native git-ls-branches", nil)
+	env.ProvideFeature("git")
 }
 
 func GitOpen(ctx emacs.FunctionCallContext) (emacs.Value, error) {

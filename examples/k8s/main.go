@@ -33,18 +33,9 @@ func init() {
 }
 
 func initModule(env emacs.Environment) {
-	stdlib := env.StdLib()
-
-	k8sMakeClientFunc := env.MakeFunction(MakeClient, 1, "k8s-make-client", nil)
-	k8sMakeClientSym := stdlib.Intern("k8s-make-client")
-	stdlib.Fset(k8sMakeClientSym, k8sMakeClientFunc)
-
-	k8sListPodsFunc := env.MakeFunction(ListPods, 1, "k8s-list-pods", nil)
-	k8sListPodsSym := stdlib.Intern("k8s-list-pods")
-	stdlib.Fset(k8sListPodsSym, k8sListPodsFunc)
-
-	k8sSym := stdlib.Intern("k8s")
-	stdlib.Provide(k8sSym)
+	env.RegisterFunction("k8s-make-client", MakeClient, 1, "k8s-make-client", nil)
+	env.RegisterFunction("k8s-list-pods", ListPods, 1, "k8s-list-pods", nil)
+	env.ProvideFeature("k8s")
 }
 
 func MakeClient(ctx emacs.FunctionCallContext) (emacs.Value, error) {

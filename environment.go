@@ -28,7 +28,6 @@ import (
 
 // Environment provides primitives for emacs modules
 type Environment interface {
-	StdLib() StdLib
 	MakeGlobalRef(Value) Value
 	FreeGlobalRef(Value)
 	NonLocalExitCheck() error
@@ -46,6 +45,11 @@ type Environment interface {
 	VecSize(Vector) int
 	VecSet(Vector, int, Value)
 	VecGet(Vector, int) Value
+
+	// additional helpers
+	StdLib() StdLib
+	RegisterFunction(string, FunctionType, int, string, interface{}) Function
+	ProvideFeature(string)
 }
 
 type emacsEnv struct {
@@ -240,6 +244,20 @@ func (e *emacsEnv) VecGet(vec Vector, idx int) Value {
 	return baseValue{
 		val: C.VecGet(e.env, vec.getVal(), C.ptrdiff_t(idx)),
 	}
+}
+
+func (e *emacsEnv) RegisterFunction(name string, f FunctionType, arity int, doc string, data interface{}) Function {
+	stdlib := e.StdLib()
+	function := e.MakeFunction(f, arity, doc, data)
+	sym := stdlib.Intern(name)
+	stdlib.Fset(sym, function)
+	return function
+}
+
+func (e *emacsEnv) ProvideFeature(name string) {
+	stdlib := e.StdLib()
+	sym := stdlib.Intern(name)
+	stdlib.Provide(sym)
 }
 
 var _ Environment = (*emacsEnv)(nil)

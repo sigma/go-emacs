@@ -47,8 +47,7 @@ func emacsModuleInit(e *C.struct_emacs_runtime) C.int {
 
 //export emacsCallFunction
 func emacsCallFunction(
-	//FIXME: emacs_env_25 shouldn't be used
-	env *C.struct_emacs_env_25, nargs C.ptrdiff_t,
+	env *C.emacs_env, nargs C.ptrdiff_t,
 	args *C.emacs_value, idx C.ptrdiff_t) C.emacs_value {
 
 	e := &emacsEnv{

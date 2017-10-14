@@ -53,7 +53,6 @@ type Environment interface {
 }
 
 type emacsEnv struct {
-	// FIXME: for some reason, struct_emacs_env doesn't compile
 	env    *C.emacs_env
 	stdlib *emacsLib
 }

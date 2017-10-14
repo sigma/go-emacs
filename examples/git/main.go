@@ -35,6 +35,7 @@ func initModule(env emacs.Environment) {
 	env.ProvideFeature("git")
 }
 
+// GitOpen opens a git repository
 func GitOpen(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	path, err := ctx.GoStringArg(0)
 	if err != nil {
@@ -49,6 +50,7 @@ func GitOpen(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	return ctx.Environment().MakeUserPointer(repo), nil
 }
 
+// GitLsBranches list all branches in a git repository
 func GitLsBranches(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 	env := ctx.Environment()
 	rawRepo, ok := env.ResolveUserPointer(ctx.UserPointerArg(0))

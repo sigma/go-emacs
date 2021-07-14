@@ -22,7 +22,7 @@ import "C"
 
 import (
 	"github.com/sigma/go-emacs"
-	git "gopkg.in/libgit2/git2go.v25"
+	git "github.com/libgit2/git2go/v28"
 )
 
 func init() {

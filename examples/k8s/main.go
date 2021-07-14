@@ -21,11 +21,13 @@ package main
 import "C"
 
 import (
+	"context"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/sigma/go-emacs"
+	emacs "github.com/sigma/go-emacs"
 )
 
 func init() {
@@ -70,7 +72,7 @@ func ListPods(ctx emacs.FunctionCallContext) (emacs.Value, error) {
 		return emacs.Error("user-ptr is not a k8s client")
 	}
 
-	pods, err := client.Core().Pods("").List(v1.ListOptions{})
+	pods, err := client.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

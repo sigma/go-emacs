@@ -19,10 +19,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	emacs "github.com/sigma/go-emacs"
 	_ "github.com/sigma/go-emacs/gpl-compatible"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -30,34 +30,34 @@ func init() {
 }
 
 func initModule(env emacs.Environment) {
-	log.Info("module initialization started")
+	log.Println("module initialization started")
 
 	stdlib := env.StdLib()
 	stdlib.Message("hello from go init")
 
-	log.Info("creating native function")
+	log.Println("creating native function")
 	helloFunc := env.MakeFunction(Hello, 1, "hello", nil)
 
-	log.Info("creating symbol")
+	log.Println("creating symbol")
 	helloSym := stdlib.Intern("hello")
 
-	log.Info("calling function")
+	log.Println("calling function")
 	stdlib.Funcall(helloFunc, env.String("function"))
 
-	log.Info("calling symbol before it's bound")
+	log.Println("calling symbol before it's bound")
 	_, err := stdlib.Funcall(helloSym, env.String("symbol"))
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	log.Info("binding symbol to function")
+	log.Println("binding symbol to function")
 	stdlib.Fset(helloSym, helloFunc)
 
-	log.Info("calling symbol after it's bound")
+	log.Println("calling symbol after it's bound")
 	stdlib.Funcall(helloSym, env.String("symbol"))
 
 	stdlib.Provide(helloSym)
-	log.Info("module initialization complete")
+	log.Println("module initialization complete")
 }
 
 // Hello is a sample function that calls "message"

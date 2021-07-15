@@ -26,6 +26,14 @@ import (
 	"unsafe"
 )
 
+type EmacsCompat int
+
+const (
+	EMACS25 EmacsCompat = 25
+	EMACS26 EmacsCompat = 26
+	EMACS27 EmacsCompat = 27
+)
+
 // Environment provides primitives for emacs modules
 type Environment interface {
 	MakeGlobalRef(Value) Value
@@ -50,6 +58,8 @@ type Environment interface {
 	StdLib() StdLib
 	RegisterFunction(string, FunctionType, int, string, interface{}) Function
 	ProvideFeature(string)
+
+	CheckCompatibility(EmacsCompat) bool
 }
 
 type emacsEnv struct {
@@ -257,6 +267,22 @@ func (e *emacsEnv) ProvideFeature(name string) {
 	stdlib := e.StdLib()
 	sym := stdlib.Intern(name)
 	stdlib.Provide(sym)
+}
+
+func (e *emacsEnv) emacsVersion() EmacsCompat {
+	return EmacsCompat(C.EmacsVersion(e.env))
+}
+
+func (e *emacsEnv) CheckCompatibility(c EmacsCompat) bool {
+	v := e.emacsVersion()
+	switch c {
+	case EMACS26:
+		return v >= 26
+	case EMACS27:
+		return v >= 27
+	default:
+		return true
+	}
 }
 
 var _ Environment = (*emacsEnv)(nil)

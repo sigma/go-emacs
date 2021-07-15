@@ -140,4 +140,17 @@ static inline ptrdiff_t VecSize(emacs_env *env, emacs_value vec) {
   return env->vec_size(env, vec);
 }
 
+static inline int EmacsVersion(emacs_env *env) {
+  if (env->size >= sizeof (struct emacs_env_27)) {
+    return 27;
+  }
+  if (env->size >= sizeof (struct emacs_env_26)) {
+    return 26;
+  }
+  if (env->size >= sizeof (struct emacs_env_25)) {
+    return 25;
+  }
+  return 0;
+}
+
 #endif /* GOEMACS_WRAPPER_H */

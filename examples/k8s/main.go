@@ -17,9 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 package main
 
-// int plugin_is_GPL_compatible;
-import "C"
-
 import (
 	"context"
 
@@ -28,6 +25,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	emacs "github.com/sigma/go-emacs"
+	_ "github.com/sigma/go-emacs/gpl-compatible"
 )
 
 func init() {

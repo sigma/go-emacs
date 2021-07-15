@@ -17,12 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 package main
 
-// int plugin_is_GPL_compatible;
-import "C"
-
 import (
-	"github.com/sigma/go-emacs"
 	git "github.com/libgit2/git2go/v28"
+	emacs "github.com/sigma/go-emacs"
+	_ "github.com/sigma/go-emacs/gpl-compatible"
 )
 
 func init() {

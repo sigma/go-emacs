@@ -90,7 +90,7 @@ func (stdlib *emacsLib) Intern(s string) Symbol {
 
 func (stdlib *emacsLib) Fset(sym Symbol, f Function) {
 	fset := stdlib.Intern("fset")
-	stdlib.Funcall(fset, sym, f)
+	_, _ = stdlib.Funcall(fset, sym, f)
 }
 
 func (stdlib *emacsLib) Fboundp(sym Symbol) bool {
@@ -101,12 +101,12 @@ func (stdlib *emacsLib) Fboundp(sym Symbol) bool {
 
 func (stdlib *emacsLib) Provide(sym Symbol) {
 	provide := stdlib.Intern("provide")
-	stdlib.Funcall(provide, sym)
+	_, _ = stdlib.Funcall(provide, sym)
 }
 
 func (stdlib *emacsLib) Message(s string) {
 	message := stdlib.Intern("message")
-	stdlib.Funcall(message, stdlib.env.String(s))
+	_, _ = stdlib.Funcall(message, stdlib.env.String(s))
 }
 
 func (stdlib *emacsLib) List(items ...Value) List {
